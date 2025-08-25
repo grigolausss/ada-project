@@ -5,6 +5,7 @@ from app.models import Lead, OTP, Property, Session, Answer, Event, PropertyAsse
 from app import db
 import datetime
 import os
+import random
 
 # DECORATOR for session protection
 def otp_required(f):
@@ -40,9 +41,18 @@ def index():
 
         session['lead_id'] = lead.id
 
-        # Removed the real OTP generation logic to ensure stability.
-        # The flow now relies exclusively on the bypass code.
-        flash('Per testare, usa il codice di bypass: 123456', 'info')
+        # Safely generate and save a real OTP for testing
+        try:
+            otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+            otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
+            db.session.add(otp)
+            db.session.commit()
+            print(f"-----> OTP generato per {email}: {otp_code} <-----")
+            flash('Per testare, usa il codice di bypass 123456. (Il codice reale è visibile nel terminale)', 'info')
+        except Exception as e:
+            print(f"ERRORE: Impossibile salvare l'OTP nel database. {e}")
+            flash('Errore del server durante la generazione del codice. Usa il codice di bypass 123456.', 'warning')
+
         return redirect(url_for('main.verify_otp', email=email))
 
     return render_template('main/index.html')
@@ -55,16 +65,25 @@ def verify_otp(email):
 
     if request.method == 'POST':
         otp_code = request.form.get('otp')
-        if otp_code == '123456':
+        if otp_code == '123456': # Bypass code always works
             lead = Lead.query.get(session['lead_id'])
             lead.stato = 'verificato'
             db.session.commit()
             session['otp_verified'] = True
             flash('Email verificata con successo!', 'success')
             return redirect(url_for('main.insert_rif'))
+
+        # Check for real OTP
+        otp_obj = OTP.query.filter_by(email=email, hash_codice=otp_code).order_by(OTP.scade_il.desc()).first()
+        if otp_obj and otp_obj.scade_il > datetime.datetime.utcnow():
+             lead = Lead.query.get(session['lead_id'])
+             lead.stato = 'verificato'
+             db.session.commit()
+             session['otp_verified'] = True
+             flash('Email verificata con successo con codice reale!', 'success')
+             return redirect(url_for('main.insert_rif'))
         else:
-            # Since real OTPs are disabled, we only check the bypass
-            flash('Codice OTP non valido. Usa il codice di bypass.', 'danger')
+            flash('Codice OTP non valido o scaduto. Usa il codice di bypass.', 'danger')
             return redirect(url_for('main.verify_otp', email=email))
 
     return render_template('main/verify_otp.html', email=email)
@@ -72,11 +91,16 @@ def verify_otp(email):
 
 @bp.route('/resend-otp/<email>')
 def resend_otp(email):
-    # This function no longer needs to generate a real OTP,
-    # as the bypass is the primary method for testing.
-    # We just provide a success message.
-    flash('Usa il codice di bypass: 123456', 'info')
-    return {'success': True, 'message': 'Usa il codice di bypass.'}
+    try:
+        otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
+        db.session.add(otp)
+        db.session.commit()
+        print(f"-----> NUOVO OTP generato per {email}: {otp_code} <-----")
+        return {'success': True, 'message': 'Un nuovo codice è stato generato e stampato nel terminale.'}
+    except Exception as e:
+        print(f"ERRORE: Impossibile salvare il nuovo OTP. {e}")
+        return {'success': False, 'message': 'Errore del server.'}, 500
 
 
 @bp.route('/insert_rif', methods=['GET', 'POST'])

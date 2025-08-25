@@ -30,7 +30,7 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
-from app.models import Lead
+from app.models import Lead, Session, Answer, Event
 
 @bp.route('/dashboard')
 @login_required
@@ -41,3 +41,20 @@ def dashboard():
     return render_template('admin/dashboard.html',
                            da_chiamare_subito_leads=da_chiamare_subito_leads,
                            da_richiamare_leads=da_richiamare_leads)
+
+@bp.route('/lead/<int:lead_id>')
+@login_required
+def lead_detail(lead_id):
+    lead = Lead.query.get_or_404(lead_id)
+
+    # For simplicity, we'll just get the first session for this lead.
+    # A more complex app might need to handle multiple sessions.
+    session = Session.query.filter_by(lead_id=lead.id).first()
+
+    answers = []
+    events = []
+    if session:
+        answers = Answer.query.filter_by(session_id=session.id).order_by(Answer.id).all()
+        events = Event.query.filter_by(session_id=session.id).order_by(Event.ts).all()
+
+    return render_template('admin/lead_detail.html', lead=lead, session=session, answers=answers, events=events)
