@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verifica OTP</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Verifica Codice OTP</h3>
+                        <p>Ti abbiamo inviato un codice a <strong>{{ email }}</strong>.</p>
+                    </div>
+                    <div class="card-body">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                        <form method="POST" action="{{ url_for('main.verify_otp', email=email) }}">
+                            <div class="form-group">
+                                <label for="otp">Codice OTP</label>
+                                <input type="text" class="form-control" id="otp" name="otp" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Verifica</button>
+                        </form>
+                        <hr>
+                        <p class="text-center">
+                            <button id="resend-btn" class="btn btn-secondary" disabled>Reinvia codice</button>
+                        </p>
+                        <p class="text-center text-muted">
+                            Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const resendBtn = document.getElementById('resend-btn');
+            const timerEl = document.getElementById('timer');
+            let timeLeft = 60;
+
+            const timer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    resendBtn.disabled = false;
+                    timerEl.parentElement.innerHTML = 'Puoi richiedere un nuovo codice ora.';
+                }
+            }, 1000);
+
+            resendBtn.addEventListener('click', () => {
+                // Here you would typically make an AJAX request to resend the OTP
+                // For now, we just redirect to the index page to restart the process
+                window.location.href = "{{ url_for('main.index') }}";
+            });
+        });
+    </script>
+</body>
+</html>

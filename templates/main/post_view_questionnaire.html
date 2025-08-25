@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domande Finali</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Ultime Domande</h3>
+                        <p>Un ultimo sforzo per aiutarci a capire meglio le tue esigenze.</p>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('main.post_view_questionnaire') }}">
+                            <!-- Domanda 1 -->
+                            <div class="form-group">
+                                <label>La metratura è adeguata?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="adeguata" id="adeguata_si" value="Sì" required>
+                                    <label class="form-check-label" for="adeguata_si">Sì</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="adeguata" id="adeguata_no" value="No">
+                                    <label class="form-check-label" for="adeguata_no">No</label>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 2 -->
+                            <div class="form-group">
+                                <label>Il taglio degli spazi è adatto alle sue esigenze?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="taglio_spazi" id="taglio_si" value="Sì" required>
+                                    <label class="form-check-label" for="taglio_si">Sì</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="taglio_spazi" id="taglio_no" value="No">
+                                    <label class="form-check-label" for="taglio_no">No</label>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 3 -->
+                            <div class="form-group">
+                                <label>Posto auto/box necessari?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="posto_auto" id="posto_auto_si" value="Sì" required>
+                                    <label class="form-check-label" for="posto_auto_si">Sì</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="posto_auto" id="posto_auto_no" value="No">
+                                    <label class="form-check-label" for="posto_auto_no">No</label>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 4 -->
+                            <div class="form-group">
+                                <label>Il range di prezzo è sostenibile per lei?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="range_prezzo" id="prezzo_si" value="Sì" required>
+                                    <label class="form-check-label" for="prezzo_si">Sì</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="range_prezzo" id="prezzo_no" value="No">
+                                    <label class="form-check-label" for="prezzo_no">No</label>
+                                </div>
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 5 -->
+                            <div class="form-group">
+                                <label for="note_libere">Note libere (testo breve)</label>
+                                <textarea class="form-control" id="note_libere" name="note_libere" rows="3"></textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">Invia e vai al passo finale</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

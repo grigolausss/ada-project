@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Questionario di Pre-Qualifica</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-8 offset-md-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Questionario di Pre-Qualifica</h3>
+                        <p>Rispondi a queste domande per accedere alla planimetria.</p>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('main.questionnaire') }}">
+                            <!-- Domanda 1: Mutuo -->
+                            <div class="form-group">
+                                <label>Ha già un mutuo?</label><br>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="mutuo" id="mutuo_si" value="Sì">
+                                    <label class="form-check-label" for="mutuo_si">Sì</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="mutuo" id="mutuo_no" value="No">
+                                    <label class="form-check-label" for="mutuo_no">No</label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="mutuo_residuo">Se sì: con quanto residuo?</label>
+                                <input type="text" class="form-control" id="mutuo_residuo" name="mutuo_residuo">
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 2: Liquidità -->
+                            <div class="form-group">
+                                <label>Ha disponibilità liquida per anticipo/spese?</label><br>
+                                <input type="text" class="form-control" id="liquidita" name="liquidita" placeholder="Sì / No / Importo indicativo">
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 3: Finanziamento -->
+                            <div class="form-group">
+                                <label>Necessità di finanziamento?</label><br>
+                                <input type="text" class="form-control" id="finanziamento" name="finanziamento" placeholder="Sì / No / Percentuale indicativa">
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 4: Tempistiche -->
+                            <div class="form-group">
+                                <label for="tempistiche">Tempistiche di acquisto?</label>
+                                <select class="form-control" id="tempistiche" name="tempistiche">
+                                    <option>entro 1 mese</option>
+                                    <option>1–3 mesi</option>
+                                    <option>3–6 mesi</option>
+                                    <option>oltre 6 mesi</option>
+                                </select>
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 5: Situazione attuale -->
+                            <div class="form-group">
+                                <label for="situazione">Situazione attuale?</label>
+                                <select class="form-control" id="situazione" name="situazione">
+                                    <option>In affitto</option>
+                                    <option>Proprietario (deve vendere)</option>
+                                    <option>Convivenza</option>
+                                    <option>Altro (specificare)</option>
+                                </select>
+                                <input type="text" class="form-control mt-2" name="situazione_altro" placeholder="Specificare se 'Altro'">
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 6: Esigenze non negoziabili -->
+                            <div class="form-group">
+                                <label>Esigenze non negoziabili?</label><br>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="esigenze" value="box" id="box">
+                                    <label class="form-check-label" for="box">Box</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="esigenze" value="giardino" id="giardino">
+                                    <label class="form-check-label" for="giardino">Giardino</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="esigenze" value="piano_alto" id="piano_alto">
+                                    <label class="form-check-label" for="piano_alto">Piano alto</label>
+                                </div>
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="esigenze" value="ascensore" id="ascensore">
+                                    <label class="form-check-label" for="ascensore">Ascensore</label>
+                                </div>
+                                 <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="esigenze" value="doppi_servizi" id="doppi_servizi">
+                                    <label class="form-check-label" for="doppi_servizi">Doppi servizi</label>
+                                </div>
+                                <input type="text" class="form-control mt-2" name="esigenze_altro" placeholder="Altre esigenze">
+                            </div>
+                            <hr>
+
+                            <!-- Domanda 7: Consenso ricontatto -->
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="ricontatto" name="ricontatto" value="true" required>
+                                <label class="form-check-label" for="ricontatto">Consenso ad essere ricontattato per fissare appuntamento</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-block">Invia risposte e vedi planimetria</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
