@@ -5,6 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Questionario di Pre-Qualifica</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .answer-btn {
+            margin: 5px;
+            border: 1px solid #007bff;
+            color: #007bff;
+        }
+        .answer-btn.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .question-block {
+            margin-bottom: 2rem;
+        }
+    </style>
 </head>
 <body>
     <div class="container mt-5">
@@ -16,103 +30,122 @@
                         <p>Rispondi a queste domande per accedere alla planimetria.</p>
                     </div>
                     <div class="card-body">
-                        <form method="POST" action="{{ url_for('main.questionnaire') }}">
-                            <!-- Domanda 1: Mutuo -->
-                            <div class="form-group">
-                                <label>Ha già un mutuo?</label><br>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="mutuo" id="mutuo_si" value="Sì">
-                                    <label class="form-check-label" for="mutuo_si">Sì</label>
-                                </div>
-                                <div class="form-check form-check-inline">
-                                    <input class="form-check-input" type="radio" name="mutuo" id="mutuo_no" value="No">
-                                    <label class="form-check-label" for="mutuo_no">No</label>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label for="mutuo_residuo">Se sì: con quanto residuo?</label>
-                                <input type="text" class="form-control" id="mutuo_residuo" name="mutuo_residuo">
-                            </div>
-                            <hr>
+                        <form id="questionnaire-form" method="POST" action="{{ url_for('main.questionnaire') }}">
 
-                            <!-- Domanda 2: Liquidità -->
-                            <div class="form-group">
-                                <label>Ha disponibilità liquida per anticipo/spese?</label><br>
-                                <input type="text" class="form-control" id="liquidita" name="liquidita" placeholder="Sì / No / Importo indicativo">
-                            </div>
-                            <hr>
-
-                            <!-- Domanda 3: Finanziamento -->
-                            <div class="form-group">
-                                <label>Necessità di finanziamento?</label><br>
-                                <input type="text" class="form-control" id="finanziamento" name="finanziamento" placeholder="Sì / No / Percentuale indicativa">
-                            </div>
-                            <hr>
-
-                            <!-- Domanda 4: Tempistiche -->
-                            <div class="form-group">
-                                <label for="tempistiche">Tempistiche di acquisto?</label>
-                                <select class="form-control" id="tempistiche" name="tempistiche">
-                                    <option>entro 1 mese</option>
-                                    <option>1–3 mesi</option>
-                                    <option>3–6 mesi</option>
-                                    <option>oltre 6 mesi</option>
-                                </select>
-                            </div>
-                            <hr>
-
-                            <!-- Domanda 5: Situazione attuale -->
-                            <div class="form-group">
-                                <label for="situazione">Situazione attuale?</label>
-                                <select class="form-control" id="situazione" name="situazione">
-                                    <option>In affitto</option>
-                                    <option>Proprietario (deve vendere)</option>
-                                    <option>Convivenza</option>
-                                    <option>Altro (specificare)</option>
-                                </select>
-                                <input type="text" class="form-control mt-2" name="situazione_altro" placeholder="Specificare se 'Altro'">
-                            </div>
-                            <hr>
-
-                            <!-- Domanda 6: Esigenze non negoziabili -->
-                            <div class="form-group">
-                                <label>Esigenze non negoziabili?</label><br>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="esigenze" value="box" id="box">
-                                    <label class="form-check-label" for="box">Box</label>
+                            <!-- Tempistiche di acquisto -->
+                            <div class="question-block">
+                                <label><strong>Tempistiche di acquisto?</strong></label>
+                                <input type="hidden" name="tempistiche" id="tempistiche-hidden" required>
+                                <div>
+                                    <button type="button" class="btn answer-btn" data-question="tempistiche" data-value="Entro 1 mese">Entro 1 mese</button>
+                                    <button type="button" class="btn answer-btn" data-question="tempistiche" data-value="1-3 mesi">1-3 mesi</button>
+                                    <button type="button" class="btn answer-btn" data-question="tempistiche" data-value="3-6 mesi">3-6 mesi</button>
+                                    <button type="button" class="btn answer-btn" data-question="tempistiche" data-value="Oltre 6 mesi">Oltre 6 mesi</button>
                                 </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="esigenze" value="giardino" id="giardino">
-                                    <label class="form-check-label" for="giardino">Giardino</label>
-                                </div>
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="esigenze" value="piano_alto" id="piano_alto">
-                                    <label class="form-check-label" for="piano_alto">Piano alto</label>
-                                </div>
-                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="esigenze" value="ascensore" id="ascensore">
-                                    <label class="form-check-label" for="ascensore">Ascensore</label>
-                                </div>
-                                 <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" name="esigenze" value="doppi_servizi" id="doppi_servizi">
-                                    <label class="form-check-label" for="doppi_servizi">Doppi servizi</label>
-                                </div>
-                                <input type="text" class="form-control mt-2" name="esigenze_altro" placeholder="Altre esigenze">
                             </div>
-                            <hr>
 
-                            <!-- Domanda 7: Consenso ricontatto -->
-                            <div class="form-group form-check">
+                            <!-- Situazione attuale -->
+                            <div class="question-block">
+                                <label><strong>Situazione attuale?</strong></label>
+                                <input type="hidden" name="situazione" id="situazione-hidden" required>
+                                <div>
+                                    <button type="button" class="btn answer-btn" data-question="situazione" data-value="In affitto">In affitto</button>
+                                    <button type="button" class="btn answer-btn" data-question="situazione" data-value="Proprietario (deve vendere)">Proprietario (deve vendere)</button>
+                                    <button type="button" class="btn answer-btn" data-question="situazione" data-value="Convivenza">Convivenza</button>
+                                    <button type="button" class="btn answer-btn other-btn" data-question="situazione">Altro</button>
+                                </div>
+                                <input type="text" class="form-control mt-2 d-none" id="situazione-other-text" placeholder="Specifica la tua situazione">
+                            </div>
+
+                            <!-- Necessità di finanziamento -->
+                            <div class="question-block">
+                                <label><strong>Necessità di finanziamento?</strong></label>
+                                <input type="hidden" name="finanziamento" id="finanziamento-hidden" required>
+                                <div>
+                                    <button type="button" class="btn answer-btn" data-question="finanziamento" data-value="Nessuna">Nessuna</button>
+                                    <button type="button" class="btn answer-btn" data-question="finanziamento" data-value="Meno del 50%">Meno del 50%</button>
+                                    <button type="button" class="btn answer-btn" data-question="finanziamento" data-value="Più del 50%">Più del 50%</button>
+                                    <button type="button" class="btn answer-btn" data-question="finanziamento" data-value="100%">100%</button>
+                                </div>
+                            </div>
+
+                            <!-- Consenso ricontatto -->
+                            <div class="form-group form-check mt-4">
                                 <input type="checkbox" class="form-check-input" id="ricontatto" name="ricontatto" value="true" required>
                                 <label class="form-check-label" for="ricontatto">Consenso ad essere ricontattato per fissare appuntamento</label>
                             </div>
 
-                            <button type="submit" class="btn btn-primary btn-block">Invia risposte e vedi planimetria</button>
+                            <button type="submit" class="btn btn-primary btn-block mt-4">Invia risposte e vedi planimetria</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('questionnaire-form');
+
+            form.addEventListener('click', function(e) {
+                if (e.target.classList.contains('answer-btn')) {
+                    const question = e.target.dataset.question;
+                    const hiddenInput = document.getElementById(question + '-hidden');
+                    const otherTextInput = document.getElementById(question + '-other-text');
+
+                    // Reset active state for sibling buttons
+                    document.querySelectorAll(`.answer-btn[data-question='${question}']`).forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+
+                    e.target.classList.add('active');
+
+                    if (e.target.classList.contains('other-btn')) {
+                        if (otherTextInput) {
+                            otherTextInput.classList.remove('d-none');
+                            otherTextInput.focus();
+                            hiddenInput.value = otherTextInput.value; // Start with empty or existing value
+                        }
+                    } else {
+                        if (otherTextInput) {
+                            otherTextInput.classList.add('d-none');
+                        }
+                        hiddenInput.value = e.target.dataset.value;
+                    }
+                }
+            });
+
+            form.addEventListener('input', function(e) {
+                if (e.target.matches("input[type='text']")) {
+                    const question = e.target.id.replace('-other-text', '');
+                    const hiddenInput = document.getElementById(question + '-hidden');
+                    if (hiddenInput) {
+                        hiddenInput.value = e.target.value;
+                    }
+                }
+            });
+
+            // Add validation on submit
+            form.addEventListener('submit', function(e) {
+                const hiddenInputs = form.querySelectorAll("input[type='hidden']");
+                let allValid = true;
+                hiddenInputs.forEach(input => {
+                    if (!input.value) {
+                        allValid = false;
+                        const label = input.closest('.question-block').querySelector('label');
+                        label.style.color = 'red';
+                    } else {
+                         const label = input.closest('.question-block').querySelector('label');
+                        label.style.color = '';
+                    }
+                });
+
+                if (!allValid) {
+                    e.preventDefault();
+                    alert('Per favore, rispondi a tutte le domande.');
+                }
+            });
+        });
+    </script>
 </body>
 </html>

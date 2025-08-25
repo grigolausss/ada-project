@@ -39,7 +39,16 @@ def index():
             db.session.commit()
 
         session['lead_id'] = lead.id
-        flash(f'Per testare, usa il codice OTP: 123456.', 'info')
+
+        # Generate a real OTP for testing purposes, even with the bypass available
+        otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+        otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
+        db.session.add(otp)
+        db.session.commit()
+
+        print(f"-----> OTP generato per {email}: {otp_code} <-----")
+
+        flash(f'Per testare, usa il codice di bypass 123456. (Il codice reale generato è visibile nel terminale)', 'info')
         return redirect(url_for('main.verify_otp', email=email))
 
     return render_template('main/index.html')
