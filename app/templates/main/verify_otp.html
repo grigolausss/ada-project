@@ -23,6 +23,7 @@
                                 {% endfor %}
                             {% endif %}
                         {% endwith %}
+                        <div id="resend-alert" class="alert alert-success d-none" role="alert"></div>
                         <form method="POST" action="{{ url_for('main.verify_otp', email=email) }}">
                             <div class="form-group">
                                 <label for="otp">Codice OTP</label>
@@ -31,12 +32,12 @@
                             <button type="submit" class="btn btn-primary btn-block">Verifica</button>
                         </form>
                         <hr>
-                        <p class="text-center">
+                        <div class="text-center">
                             <button id="resend-btn" class="btn btn-secondary" disabled>Reinvia codice</button>
-                        </p>
-                        <p class="text-center text-muted">
-                            Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.
-                        </p>
+                            <p class="text-muted mt-2">
+                                <span id="resend-timer-text">Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.</span>
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -46,23 +47,52 @@
         document.addEventListener('DOMContentLoaded', function() {
             const resendBtn = document.getElementById('resend-btn');
             const timerEl = document.getElementById('timer');
+            const timerTextEl = document.getElementById('resend-timer-text');
+            const resendAlert = document.getElementById('resend-alert');
             let timeLeft = 60;
 
-            const timer = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = timeLeft;
-                if (timeLeft <= 0) {
-                    clearInterval(timer);
-                    resendBtn.disabled = false;
-                    timerEl.parentElement.innerHTML = 'Puoi richiedere un nuovo codice ora.';
-                }
-            }, 1000);
+            function startTimer() {
+                resendBtn.disabled = true;
+                timerTextEl.innerHTML = `Potrai richiedere un altro codice tra <span id="timer">${timeLeft}</span> secondi.`;
+                timerTextEl.style.display = 'block';
+
+                const timer = setInterval(() => {
+                    timeLeft--;
+                    timerEl.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        resendBtn.disabled = false;
+                        timerTextEl.innerHTML = 'Non hai ricevuto il codice? Prova a reinviarlo.';
+                        timeLeft = 60; // Reset for next time
+                    }
+                }, 1000);
+            }
 
             resendBtn.addEventListener('click', () => {
-                // Here you would typically make an AJAX request to resend the OTP
-                // For now, we just redirect to the index page to restart the process
-                window.location.href = "{{ url_for('main.index') }}";
+                resendAlert.classList.add('d-none'); // Hide previous alert
+                fetch(`/resend-otp/{{ email }}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            resendAlert.textContent = 'Un nuovo codice è stato generato e stampato nel terminale.';
+                            resendAlert.classList.remove('d-none');
+                            startTimer();
+                        } else {
+                            resendAlert.textContent = 'Errore durante il reinvio del codice.';
+                            resendAlert.classList.add('alert-danger');
+                            resendAlert.classList.remove('d-none', 'alert-success');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        resendAlert.textContent = 'Errore di rete.';
+                        resendAlert.classList.add('alert-danger');
+                        resendAlert.classList.remove('d-none', 'alert-success');
+                    });
             });
+
+            // Start the timer on initial page load
+            startTimer();
         });
     </script>
 </body>

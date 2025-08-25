@@ -74,6 +74,20 @@ def verify_otp(email):
 
     return render_template('main/verify_otp.html', email=email)
 
+@bp.route('/resend-otp/<email>')
+def resend_otp(email):
+    # Generate a new OTP
+    otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+
+    # In a real app, you'd likely invalidate the old OTP. For now, we just make a new one.
+    otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
+    db.session.add(otp)
+    db.session.commit()
+
+    print(f"-----> NUOVO OTP generato per {email}: {otp_code} <-----")
+
+    return {'success': True, 'message': 'Un nuovo codice è stato generato.'}
+
 @bp.route('/insert_rif', methods=['GET', 'POST'])
 @otp_required
 def insert_rif():
