@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Immobili Alternativi</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-10 offset-md-1">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Grazie per il feedback</h3>
+                        <p>In base alle tue risposte, potrebbero interessarti queste soluzioni:</p>
+                    </div>
+                    <div class="card-body">
+                        {% for prop in alternatives %}
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ prop.titolo }} ({{ prop.rif }})</h5>
+                                <p class="card-text">
+                                    <strong>Zona:</strong> {{ prop.zona }} |
+                                    <strong>MQ:</strong> {{ prop.mq }} |
+                                    <strong>Prezzo:</strong>
+                                    {% if prop.prezzo_min and prop.prezzo_max %}
+                                        Da {{ "%.0f"|format(prop.prezzo_min) }} € a {{ "%.0f"|format(prop.prezzo_max) }} €
+                                    {% elif prop.prezzo_min %}
+                                        A partire da {{ "%.0f"|format(prop.prezzo_min) }} €
+                                    {% else %}
+                                        N/D
+                                    {% endif %}
+                                </p>
+                                <a href="{{ url_for('main.property_details', rif=prop.rif) }}" class="btn btn-primary">Vedi Informazioni</a>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <hr>
+                        <div class="text-center">
+                            <p>Nessuna di queste alternative ti convince?</p>
+                             <a href="{{ url_for('main.collect_phone_and_redirect') }}" class="btn btn-secondary">Parla con un nostro consulente</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
