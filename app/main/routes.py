@@ -40,15 +40,9 @@ def index():
 
         session['lead_id'] = lead.id
 
-        # Generate a real OTP for testing purposes, even with the bypass available
-        otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-        otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
-        db.session.add(otp)
-        db.session.commit()
-
-        print(f"-----> OTP generato per {email}: {otp_code} <-----")
-
-        flash(f'Per testare, usa il codice di bypass 123456. (Il codice reale generato è visibile nel terminale)', 'info')
+        # Removed the real OTP generation logic to ensure stability.
+        # The flow now relies exclusively on the bypass code.
+        flash('Per testare, usa il codice di bypass: 123456', 'info')
         return redirect(url_for('main.verify_otp', email=email))
 
     return render_template('main/index.html')
@@ -66,27 +60,24 @@ def verify_otp(email):
             lead.stato = 'verificato'
             db.session.commit()
             session['otp_verified'] = True
-            flash('Email verificata con successo (Bypass)!', 'success')
+            flash('Email verificata con successo!', 'success')
             return redirect(url_for('main.insert_rif'))
         else:
-            flash('Codice OTP non valido.', 'danger')
+            # Since real OTPs are disabled, we only check the bypass
+            flash('Codice OTP non valido. Usa il codice di bypass.', 'danger')
             return redirect(url_for('main.verify_otp', email=email))
 
     return render_template('main/verify_otp.html', email=email)
 
+
 @bp.route('/resend-otp/<email>')
 def resend_otp(email):
-    # Generate a new OTP
-    otp_code = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    # This function no longer needs to generate a real OTP,
+    # as the bypass is the primary method for testing.
+    # We just provide a success message.
+    flash('Usa il codice di bypass: 123456', 'info')
+    return {'success': True, 'message': 'Usa il codice di bypass.'}
 
-    # In a real app, you'd likely invalidate the old OTP. For now, we just make a new one.
-    otp = OTP(email=email, hash_codice=otp_code, scade_il=datetime.datetime.utcnow() + datetime.timedelta(minutes=10))
-    db.session.add(otp)
-    db.session.commit()
-
-    print(f"-----> NUOVO OTP generato per {email}: {otp_code} <-----")
-
-    return {'success': True, 'message': 'Un nuovo codice è stato generato.'}
 
 @bp.route('/insert_rif', methods=['GET', 'POST'])
 @otp_required
@@ -229,7 +220,7 @@ def not_interested():
     answer = Answer(session_id=session_id, domanda_id='not_interested_reason', domanda_testo=reason, risposta=reason_text, fase='post')
     db.session.add(answer)
     lead = Lead.query.get(session['lead_id'])
-    lead.stato = 'da richiamare' # Changed from 'non interessato'
+    lead.stato = 'da richiamare'
     db.session.commit()
 
     current_session = Session.query.get(session_id)
