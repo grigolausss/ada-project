@@ -1,5 +1,6 @@
 import logging
 from logging.config import fileConfig
+import os
 
 from flask import current_app
 
@@ -14,6 +15,17 @@ config = context.config
 fileConfig(config.config_file_name)
 logger = logging.getLogger('alembic.env')
 
+# --- Start of Fix ---
+# Get the absolute path to the project's instance folder
+# This makes the script independent of the current working directory
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+instance_path = os.path.join(project_root, 'instance')
+db_path = os.path.join(instance_path, 'app.db')
+absolute_db_url = f'sqlite:///{db_path}'
+
+# Set the SQLAlchemy URL directly in the config
+config.set_main_option('sqlalchemy.url', absolute_db_url)
+# --- End of Fix ---
 
 def get_engine():
     try:
@@ -36,7 +48,9 @@ def get_engine_url():
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-config.set_main_option('sqlalchemy.url', get_engine_url())
+# We've already set the URL, so this line is no longer needed if it causes issues.
+# However, the rest of the script might rely on the app context, so we keep it.
+# config.set_main_option('sqlalchemy.url', get_engine_url())
 target_db = current_app.extensions['migrate'].db
 
 # other values from the config, defined by the needs of env.py,
