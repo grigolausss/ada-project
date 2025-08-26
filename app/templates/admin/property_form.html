@@ -3,66 +3,120 @@
 {% block title %}{{ 'Modifica' if property else 'Aggiungi' }} Immobile{% endblock %}
 
 {% block content %}
-<h1>{{ 'Modifica' if property else 'Aggiungi' }} Immobile</h1>
-<hr>
-<!-- Add enctype for file uploads -->
 <form method="POST" enctype="multipart/form-data">
-    <div class="form-row">
-        <div class="form-group col-md-3">
-            <label for="rif">RIF (Univoco)</label>
-            <input type="text" class="form-control" id="rif" name="rif" value="{{ property.rif if property else '' }}" required>
-        </div>
-        <div class="form-group col-md-9">
-            <label for="titolo">Titolo</label>
-            <input type="text" class="form-control" id="titolo" name="titolo" value="{{ property.titolo if property else '' }}" required>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>{{ 'Modifica' if property else 'Aggiungi' }} Immobile</h1>
+        <div>
+            <a href="{{ url_for('admin.properties') }}" class="btn btn-secondary">Annulla</a>
+            <button type="submit" class="btn btn-primary">Salva Immobile</button>
         </div>
     </div>
-    <div class="form-row">
-        <div class="form-group col-md-6">
-            <label for="tipologia">Tipologia</label>
-            <input type="text" class="form-control" id="tipologia" name="tipologia" value="{{ property.tipologia if property else '' }}">
+    <hr>
+
+    <!-- Dati Principali -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Dati Principali</h4>
         </div>
-        <div class="form-group col-md-6">
-            <label for="zona">Zona</label>
-            <input type="text" class="form-control" id="zona" name="zona" value="{{ property.zona if property else '' }}">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-3">
+                    <label for="rif">RIF (Univoco)</label>
+                    <input type="text" class="form-control" id="rif" name="rif" value="{{ property.rif if property else '' }}" required>
+                </div>
+                <div class="form-group col-md-9">
+                    <label for="titolo">Titolo</label>
+                    <input type="text" class="form-control" id="titolo" name="titolo" value="{{ property.titolo if property else '' }}" required>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="tipologia">Tipologia</label>
+                    <input type="text" class="form-control" id="tipologia" name="tipologia" value="{{ property.tipologia if property else '' }}">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="zona">Zona</label>
+                    <input type="text" class="form-control" id="zona" name="zona" value="{{ property.zona if property else '' }}">
+                </div>
+                 <div class="form-group col-md-4">
+                    <label for="stato">Stato</label>
+                    <input type="text" class="form-control" id="stato" name="stato" value="{{ property.stato if property else '' }}">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-4">
+                    <label for="mq">Metratura (mq)</label>
+                    <input type="number" class="form-control" id="mq" name="mq" value="{{ property.mq if property else '' }}">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="prezzo_min">Prezzo Min</label>
+                    <input type="number" step="0.01" class="form-control" id="prezzo_min" name="prezzo_min" value="{{ property.prezzo_min if property else '' }}">
+                </div>
+                <div class="form-group col-md-4">
+                    <label for="prezzo_max">Prezzo Max</label>
+                    <input type="number" step="0.01" class="form-control" id="prezzo_max" name="prezzo_max" value="{{ property.prezzo_max if property else '' }}">
+                </div>
+            </div>
         </div>
     </div>
-    <div class="form-row">
-        <div class="form-group col-md-3">
-            <label for="mq">Metratura (mq)</label>
-            <input type="number" class="form-control" id="mq" name="mq" value="{{ property.mq if property else '' }}">
+
+    <!-- Caratteristiche Dettagliate -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h4>Caratteristiche Dettagliate</h4>
         </div>
-        <div class="form-group col-md-3">
-            <label for="prezzo_min">Prezzo Min</label>
-            <input type="number" step="0.01" class="form-control" id="prezzo_min" name="prezzo_min" value="{{ property.prezzo_min if property else '' }}">
-        </div>
-        <div class="form-group col-md-3">
-            <label for="prezzo_max">Prezzo Max</label>
-            <input type="number" step="0.01" class="form-control" id="prezzo_max" name="prezzo_max" value="{{ property.prezzo_max if property else '' }}">
-        </div>
-        <div class="form-group col-md-3">
-            <label for="stato">Stato</label>
-            <input type="text" class="form-control" id="stato" name="stato" value="{{ property.stato if property else '' }}">
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group col-md-3"><label for="char_anno">Anno</label><input type="text" class="form-control" id="char_anno" name="char_anno" value="{{ property.caratteristiche_json.get('anno', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_struttura">Struttura</label><input type="text" class="form-control" id="char_struttura" name="char_struttura" value="{{ property.caratteristiche_json.get('struttura', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_tot_unita">Tot. Unità</label><input type="text" class="form-control" id="char_tot_unita" name="char_tot_unita" value="{{ property.caratteristiche_json.get('tot_unita', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_piano">Piano</label><input type="text" class="form-control" id="char_piano" name="char_piano" value="{{ property.caratteristiche_json.get('piano', '') if property }}"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-3"><label for="char_n_piani">N. Piani</label><input type="text" class="form-control" id="char_n_piani" name="char_n_piani" value="{{ property.caratteristiche_json.get('n_piani', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_zona_giorno">Zona Giorno</label><input type="text" class="form-control" id="char_zona_giorno" name="char_zona_giorno" value="{{ property.caratteristiche_json.get('zona_giorno', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_zona_notte">Zona Notte</label><input type="text" class="form-control" id="char_zona_notte" name="char_zona_notte" value="{{ property.caratteristiche_json.get('zona_notte', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_bagno">Bagno</label><input type="text" class="form-control" id="char_bagno" name="char_bagno" value="{{ property.caratteristiche_json.get('bagno', '') if property }}"></div>
+            </div>
+             <div class="form-row">
+                <div class="form-group col-md-3"><label for="char_ingresso">Ingresso</label><input type="text" class="form-control" id="char_ingresso" name="char_ingresso" value="{{ property.caratteristiche_json.get('ingresso', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_portoncino">Portoncino</label><input type="text" class="form-control" id="char_portoncino" name="char_portoncino" value="{{ property.caratteristiche_json.get('portoncino', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_posto_auto">Posto Auto</label><input type="text" class="form-control" id="char_posto_auto" name="char_posto_auto" value="{{ property.caratteristiche_json.get('posto_auto', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_finestre">Finestre</label><input type="text" class="form-control" id="char_finestre" name="char_finestre" value="{{ property.caratteristiche_json.get('finestre', '') if property }}"></div>
+            </div>
+             <div class="form-row">
+                <div class="form-group col-md-3"><label for="char_oscuri_tapp">Oscuri/Tapp</label><input type="text" class="form-control" id="char_oscuri_tapp" name="char_oscuri_tapp" value="{{ property.caratteristiche_json.get('oscuri_tapp', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_retro">Retro</label><input type="text" class="form-control" id="char_retro" name="char_retro" value="{{ property.caratteristiche_json.get('retro', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_spese_cond">Spese Cond.</label><input type="text" class="form-control" id="char_spese_cond" name="char_spese_cond" value="{{ property.caratteristiche_json.get('spese_cond', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_giardino">Giardino</label><input type="text" class="form-control" id="char_giardino" name="char_giardino" value="{{ property.caratteristiche_json.get('giardino', '') if property }}"></div>
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-3"><label for="char_lavanderia">Lavanderia</label><input type="text" class="form-control" id="char_lavanderia" name="char_lavanderia" value="{{ property.caratteristiche_json.get('lavanderia', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_aria_cond">Aria Cond.</label><input type="text" class="form-control" id="char_aria_cond" name="char_aria_cond" value="{{ property.caratteristiche_json.get('aria_cond', '') if property }}"></div>
+                <div class="form-group col-md-3"><label for="char_classe_energ">Classe Energ.</label><input type="text" class="form-control" id="char_classe_energ" name="char_classe_energ" value="{{ property.caratteristiche_json.get('classe_energ', '') if property }}"></div>
+            </div>
+             <div class="form-row">
+                <div class="form-group col-md-6"><label for="char_imp_elettrico">Imp. Elettrico (anno)</label><input type="text" class="form-control" id="char_imp_elettrico" name="char_imp_elettrico" value="{{ property.caratteristiche_json.get('imp_elettrico', '') if property }}"></div>
+                <div class="form-group col-md-6"><label for="char_imp_idraulico">Imp. Idraulico (anno)</label><input type="text" class="form-control" id="char_imp_idraulico" name="char_imp_idraulico" value="{{ property.caratteristiche_json.get('imp_idraulico', '') if property }}"></div>
+            </div>
         </div>
     </div>
-     <div class="form-group">
-        <label for="caratteristiche_json">Caratteristiche (JSON)</label>
-        <textarea class="form-control" id="caratteristiche_json" name="caratteristiche_json" rows="4">{{ property.caratteristiche_json | tojson if property and property.caratteristiche_json else '{}' }}</textarea>
-        <small class="form-text text-muted">Inserire in formato JSON, es: {"camere": 3, "bagni": 2}</small>
+
+    <!-- Upload e Stato -->
+    <div class="card">
+        <div class="card-body">
+            <div class="form-group">
+                <label for="planimetria">Carica Planimetria (opzionale)</label>
+                <input type="file" class="form-control-file" id="planimetria" name="planimetria">
+                {% if property and property.assets and property.assets|selectattr('tipo', 'equalto', 'planimetria')|first %}
+                    <small class="form-text text-muted">Planimetria attuale: {{ (property.assets|selectattr('tipo', 'equalto', 'planimetria')|first).path_privato }}. Caricandone una nuova, la sostituirai.</small>
+                {% endif %}
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="attivo" name="attivo" value="y" {% if not property or property.attivo %}checked{% endif %}>
+                <label class="form-check-label" for="attivo">Immobile Attivo</label>
+            </div>
+        </div>
     </div>
-    <!-- File Upload Field -->
-    <div class="form-group">
-        <label for="planimetria">Carica Planimetria (opzionale)</label>
-        <input type="file" class="form-control-file" id="planimetria" name="planimetria">
-        {% if property and property.assets and property.assets|selectattr('tipo', 'equalto', 'planimetria')|first %}
-            <small class="form-text text-muted">Planimetria attuale: {{ (property.assets|selectattr('tipo', 'equalto', 'planimetria')|first).path_privato }}. Caricandone una nuova, la sostituirai.</small>
-        {% endif %}
-    </div>
-    <div class="form-group form-check">
-        <input type="checkbox" class="form-check-input" id="attivo" name="attivo" value="y" {% if not property or property.attivo %}checked{% endif %}>
-        <label class="form-check-label" for="attivo">Immobile Attivo</label>
-    </div>
-    <button type="submit" class="btn btn-primary">Salva Immobile</button>
-    <a href="{{ url_for('admin.properties') }}" class="btn btn-secondary">Annulla</a>
 </form>
 {% endblock %}

@@ -1,17 +1,16 @@
 from app.admin import bp
-from flask import render_template, request, flash, redirect, url_for, current_app, session
+from flask import render_template, request, flash, redirect, url_for, current_app
 from app.models import User, Lead, Session, Answer, Event, Property, PropertyAsset
 from flask_login import login_user, logout_user, login_required, current_user
 from app import db
 import json
 import os
 from werkzeug.utils import secure_filename
-import pandas as pd
 
 # --- Helper Function for File Upload ---
 def save_plan_file(file, property_id):
     if not file or file.filename == '':
-        return # No file uploaded
+        return True
     try:
         filename = secure_filename(file.filename)
         name, ext = os.path.splitext(filename)
@@ -28,7 +27,7 @@ def save_plan_file(file, property_id):
             db.session.add(asset)
         return True
     except Exception as e:
-        flash(f"Errore durante il caricamento del file: {e}", "danger")
+        flash(f"Errore fatale durante il caricamento del file: {e}", "danger")
         return False
 
 # --- Auth Routes ---
@@ -77,98 +76,29 @@ def lead_detail(lead_id):
         events = Event.query.filter_by(session_id=session.id).order_by(Event.ts).all()
     return render_template('admin/lead_detail.html', lead=lead, session=session, answers=answers, events=events)
 
-# --- Import Routes ---
-@bp.route('/import', methods=['GET', 'POST'])
-@login_required
-def import_properties():
-    if request.method == 'POST':
-        if 'import_file' not in request.files:
-            flash('Nessun file selezionato.', 'danger')
-            return redirect(request.url)
-        file = request.files['import_file']
-        if file.filename == '':
-            flash('Nessun file selezionato.', 'danger')
-            return redirect(request.url)
-        if file:
-            try:
-                if file.filename.endswith('.csv'):
-                    df = pd.read_csv(file, dtype=str).fillna('')
-                else:
-                    df = pd.read_excel(file, dtype=str).fillna('')
-                session['import_data'] = df.to_json(orient='split')
-                return redirect(url_for('admin.map_import'))
-            except Exception as e:
-                flash(f"Errore durante la lettura del file: {e}", 'danger')
-                return redirect(request.url)
-    return render_template('admin/import.html')
-
-@bp.route('/import/map', methods=['GET', 'POST'])
-@login_required
-def map_import():
-    if 'import_data' not in session:
-        return redirect(url_for('admin.import_properties'))
-    df = pd.read_json(session['import_data'], orient='split')
-    headers = list(df.columns)
-    db_fields = [c.name for c in Property.__table__.columns if c.name not in ['id', 'assets']]
-    if request.method == 'POST':
-        mapping = {}
-        for header in headers:
-            mapped_field = request.form.get(f'map_{header}')
-            if mapped_field:
-                mapping[header] = mapped_field
-        session['import_mapping'] = mapping
-        return redirect(url_for('admin.confirm_import'))
-    return render_template('admin/import_map.html', headers=headers, db_fields=db_fields, preview_data=df.head())
-
-@bp.route('/import/confirm', methods=['GET', 'POST'])
-@login_required
-def confirm_import():
-    if 'import_data' not in session or 'import_mapping' not in session:
-        return redirect(url_for('admin.import_properties'))
-    df = pd.read_json(session['import_data'], orient='split')
-    mapping = session['import_mapping']
-    valid_rows = []
-    error_rows = []
-    existing_rifs = [p.rif for p in Property.query.with_entities(Property.rif).all()]
-    for index, row in df.iterrows():
-        error = None
-        rif_header = next((h for h, f in mapping.items() if f == 'rif'), None)
-        if not rif_header or not row.get(rif_header):
-            error = "RIF mancante."
-        elif row.get(rif_header) in existing_rifs:
-            error = "RIF già esistente nel database."
-        if error:
-            error_rows.append({'row_data': row.to_dict(), 'error': error})
-        else:
-            valid_rows.append(row.to_dict())
-            existing_rifs.append(row[rif_header])
-    session['valid_import_rows'] = valid_rows
-    if request.method == 'POST':
-        if not session.get('valid_import_rows'):
-            flash("Nessuna riga valida da importare.", "warning")
-            return redirect(url_for('admin.properties'))
-        for row_data in session['valid_import_rows']:
-            new_prop = Property()
-            for header, field in mapping.items():
-                if field in Property.__table__.columns and header in row_data:
-                    value = row_data[header]
-                    column_type = str(Property.__table__.columns[field].type)
-                    if 'INTEGER' in column_type and value: value = int(float(value))
-                    elif 'FLOAT' in column_type and value: value = float(value)
-                    elif 'JSON' in column_type and value:
-                        try: value = json.loads(value)
-                        except (json.JSONDecodeError, TypeError): value = {}
-                    setattr(new_prop, field, value)
-            db.session.add(new_prop)
-        db.session.commit()
-        session.pop('import_data', None)
-        session.pop('import_mapping', None)
-        session.pop('valid_import_rows', None)
-        flash(f"{len(valid_rows)} immobili importati con successo!", "success")
-        return redirect(url_for('admin.properties'))
-    return render_template('admin/import_confirm.html', valid_rows=valid_rows, error_rows=error_rows)
-
 # --- Property CRUD Routes ---
+def populate_property_from_form(prop, form):
+    """Helper function to populate a Property object from form data."""
+    prop.rif = form.get('rif')
+    prop.titolo = form.get('titolo')
+    prop.tipologia = form.get('tipologia')
+    prop.zona = form.get('zona')
+    prop.mq = int(form.get('mq')) if form.get('mq') else None
+    prop.prezzo_min = float(form.get('prezzo_min')) if form.get('prezzo_min') else None
+    prop.prezzo_max = float(form.get('prezzo_max')) if form.get('prezzo_max') else None
+    prop.stato = form.get('stato')
+    prop.attivo = True if form.get('attivo') else False
+
+    # Assemble the JSON characteristics from all 'char_' fields
+    caratteristiche = {}
+    for key in form:
+        if key.startswith('char_'):
+            field_name = key.replace('char_', '')
+            caratteristiche[field_name] = form.get(key)
+
+    prop.caratteristiche_json = {k: v for k, v in caratteristiche.items() if v}
+    return prop
+
 @bp.route('/property/add', methods=['GET', 'POST'])
 @login_required
 def add_property():
@@ -176,24 +106,13 @@ def add_property():
         if Property.query.filter_by(rif=request.form.get('rif')).first():
             flash('Un immobile con questo RIF esiste già.', 'danger')
             return render_template('admin/property_form.html')
-        new_prop = Property(rif=request.form.get('rif'))
-        new_prop.titolo=request.form.get('titolo')
-        new_prop.tipologia=request.form.get('tipologia')
-        new_prop.zona=request.form.get('zona')
-        new_prop.mq=int(request.form.get('mq')) if request.form.get('mq') else None
-        new_prop.prezzo_min=float(request.form.get('prezzo_min')) if request.form.get('prezzo_min') else None
-        new_prop.prezzo_max=float(request.form.get('prezzo_max')) if request.form.get('prezzo_max') else None
-        new_prop.stato=request.form.get('stato')
-        new_prop.attivo=True if request.form.get('attivo') else False
-        try:
-            new_prop.caratteristiche_json = json.loads(request.form.get('caratteristiche_json', '{}'))
-        except json.JSONDecodeError:
-            flash('Formato JSON non valido per le caratteristiche.', 'danger')
-            return render_template('admin/property_form.html')
+        new_prop = populate_property_from_form(Property(), request.form)
         db.session.add(new_prop)
         db.session.flush()
-        if 'planimetria' in request.files:
-            save_plan_file(request.files['planimetria'], new_prop.id)
+        upload_success = save_plan_file(request.files.get('planimetria'), new_prop.id)
+        if not upload_success:
+            db.session.rollback()
+            return redirect(request.url)
         db.session.commit()
         flash('Immobile aggiunto con successo!', 'success')
         return redirect(url_for('admin.properties'))
@@ -208,22 +127,11 @@ def edit_property(property_id):
         if new_rif != prop.rif and Property.query.filter_by(rif=new_rif).first():
             flash('Un altro immobile con questo RIF esiste già.', 'danger')
             return render_template('admin/property_form.html', property=prop)
-        prop.rif = new_rif
-        prop.titolo = request.form.get('titolo')
-        prop.tipologia = request.form.get('tipologia')
-        prop.zona = request.form.get('zona')
-        prop.mq = int(request.form.get('mq')) if request.form.get('mq') else None
-        prop.prezzo_min = float(request.form.get('prezzo_min')) if request.form.get('prezzo_min') else None
-        prop.prezzo_max = float(request.form.get('prezzo_max')) if request.form.get('prezzo_max') else None
-        prop.stato = request.form.get('stato')
-        prop.attivo = True if request.form.get('attivo') else False
-        try:
-            prop.caratteristiche_json = json.loads(request.form.get('caratteristiche_json', '{}'))
-        except json.JSONDecodeError:
-            flash('Formato JSON non valido per le caratteristiche.', 'danger')
+        prop = populate_property_from_form(prop, request.form)
+        upload_success = save_plan_file(request.files.get('planimetria'), prop.id)
+        if not upload_success:
+            db.session.rollback()
             return render_template('admin/property_form.html', property=prop)
-        if 'planimetria' in request.files:
-            save_plan_file(request.files['planimetria'], prop.id)
         db.session.commit()
         flash('Immobile modificato con successo!', 'success')
         return redirect(url_for('admin.properties'))
