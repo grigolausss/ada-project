@@ -3,6 +3,29 @@
 {% block title %}Dashboard Leads{% endblock %}
 
 {% block content %}
+<div class="row mb-3">
+    <div class="col-12">
+        <form method="GET" action="{{ url_for('admin.dashboard') }}" class="form-inline">
+            <div class="form-group mr-2">
+                <input type="text" class="form-control" name="q" placeholder="Cerca per nome, cognome, email..." value="{{ q or '' }}">
+            </div>
+            <button type="submit" class="btn btn-primary">Cerca</button>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary ml-2">Pulisci</a>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-3">
+    <div class="col-12">
+        <strong>Ordina per:</strong>
+        <a href="{{ url_for('admin.dashboard', q=q, sort_by='date', sort_order='desc') }}" class="btn btn-sm btn-outline-primary {% if sort_by == 'date' and sort_order == 'desc' %}active{% endif %}">Più Recenti</a>
+        <a href="{{ url_for('admin.dashboard', q=q, sort_by='date', sort_order='asc') }}" class="btn btn-sm btn-outline-primary {% if sort_by == 'date' and sort_order == 'asc' %}active{% endif %}">Meno Recenti</a>
+        <a href="{{ url_for('admin.dashboard', q=q, sort_by='name', sort_order='asc') }}" class="btn btn-sm btn-outline-primary {% if sort_by == 'name' and sort_order == 'asc' %}active{% endif %}">Nome (A-Z)</a>
+        <a href="{{ url_for('admin.dashboard', q=q, sort_by='name', sort_order='desc') }}" class="btn btn-sm btn-outline-primary {% if sort_by == 'name' and sort_order == 'desc' %}active{% endif %}">Nome (Z-A)</a>
+    </div>
+</div>
+
+
 <div class="row">
     <!-- DA CHIAMARE SUBITO -->
     <div class="col-md-6">

@@ -1,120 +1,96 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verifica OTP</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Verifica Codice OTP</h3>
-                        <p>Ti abbiamo inviato un codice a <strong>{{ email }}</strong>.</p>
+{% extends "admin/base.html" %}
+{% block title %}Verifica OTP{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Verifica Codice OTP</h3>
+                <p>Ti abbiamo inviato un codice a <strong>{{ email }}</strong>.</p>
+            </div>
+            <div class="card-body">
+                <div id="resend-alert" class="alert d-none" role="alert"></div>
+                <form method="POST" action="" novalidate>
+                    {{ form.hidden_tag() }} <!-- CSRF Token -->
+                    <div class="form-group">
+                        {{ form.otp.label }}
+                        {{ form.otp(class="form-control") }}
                     </div>
-                    <div class="card-body">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        <div id="resend-alert" class="alert d-none" role="alert"></div>
-                        <form method="POST" action="{{ url_for('main.verify_otp', email=email) }}">
-                            <div class="form-group">
-                                <label for="otp">Codice OTP</label>
-                                <input type="text" class="form-control" id="otp" name="otp" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Verifica</button>
-                        </form>
-                        <hr>
-                        <div class="text-center">
-                            <button id="resend-btn" class="btn btn-secondary">Reinvia codice</button>
-                            <p class="text-muted mt-2" id="resend-timer-text">
-                                Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.
-                            </p>
-                        </div>
-                    </div>
+                    {{ form.submit(class="btn btn-primary btn-block") }}
+                </form>
+                <hr>
+                <div class="text-center">
+                    <button id="resend-btn" class="btn btn-secondary">Reinvia codice</button>
+                    <p class="text-muted mt-2" id="resend-timer-text">
+                        Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const resendBtn = document.getElementById('resend-btn');
-            const timerTextEl = document.getElementById('resend-timer-text');
-            const resendAlert = document.getElementById('resend-alert');
-            let timeLeft = 60;
-            let timerInterval;
+</div>
 
-            function startTimer() {
-                // Reset UI
-                resendBtn.disabled = true;
-                resendBtn.classList.add('btn-secondary');
-                resendBtn.classList.remove('btn-primary');
-                timerTextEl.style.display = 'block';
+<script>
+    // The resend timer script is unchanged
+    document.addEventListener('DOMContentLoaded', function() {
+        const resendBtn = document.getElementById('resend-btn');
+        const timerTextEl = document.getElementById('resend-timer-text');
+        const resendAlert = document.getElementById('resend-alert');
+        let timeLeft = 60;
+        let timerInterval;
 
-                // Must get the timer span element each time
-                let timerEl = document.getElementById('timer');
-                if (!timerEl) {
-                    // If the span doesn't exist, recreate it
-                    timerTextEl.innerHTML = `Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.`;
-                    timerEl = document.getElementById('timer');
-                }
-
-                timeLeft = 60;
-                timerEl.textContent = timeLeft;
-
-                // Clear any existing timer
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                }
-
-                timerInterval = setInterval(() => {
-                    timeLeft--;
-                    timerEl.textContent = timeLeft;
-                    if (timeLeft <= 0) {
-                        clearInterval(timerInterval);
-                        resendBtn.disabled = false;
-                        resendBtn.classList.remove('btn-secondary');
-                        resendBtn.classList.add('btn-primary');
-                        timerTextEl.innerHTML = 'Non hai ricevuto il codice? Prova a reinviarlo.';
-                    }
-                }, 1000);
+        function startTimer() {
+            resendBtn.disabled = true;
+            resendBtn.classList.add('btn-secondary');
+            resendBtn.classList.remove('btn-primary');
+            timerTextEl.style.display = 'block';
+            let timerEl = document.getElementById('timer');
+            if (!timerEl) {
+                timerTextEl.innerHTML = `Potrai richiedere un altro codice tra <span id="timer">60</span> secondi.`;
+                timerEl = document.getElementById('timer');
             }
+            timeLeft = 60;
+            timerEl.textContent = timeLeft;
+            if (timerInterval) { clearInterval(timerInterval); }
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    resendBtn.disabled = false;
+                    resendBtn.classList.remove('btn-secondary');
+                    resendBtn.classList.add('btn-primary');
+                    timerTextEl.innerHTML = 'Non hai ricevuto il codice? Prova a reinviarlo.';
+                }
+            }, 1000);
+        }
 
-            resendBtn.addEventListener('click', () => {
-                if (resendBtn.disabled) return;
-
-                resendAlert.classList.add('d-none');
-                fetch(`/resend-otp/{{ email }}`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.success) {
-                            resendAlert.textContent = data.message;
-                            resendAlert.className = 'alert alert-success'; // Reset classes
-                            resendAlert.classList.remove('d-none');
-                            startTimer();
-                        } else {
-                            resendAlert.textContent = data.message || 'Errore durante il reinvio del codice.';
-                            resendAlert.className = 'alert alert-danger';
-                            resendAlert.classList.remove('d-none');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        resendAlert.textContent = 'Errore di rete.';
+        resendBtn.addEventListener('click', () => {
+            if (resendBtn.disabled) return;
+            resendAlert.classList.add('d-none');
+            fetch(`/resend-otp/{{ email }}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        resendAlert.textContent = data.message;
+                        resendAlert.className = 'alert alert-success';
+                        resendAlert.classList.remove('d-none');
+                        startTimer();
+                    } else {
+                        resendAlert.textContent = data.message || 'Errore durante il reinvio del codice.';
                         resendAlert.className = 'alert alert-danger';
                         resendAlert.classList.remove('d-none');
-                    });
-            });
-
-            startTimer();
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resendAlert.textContent = 'Errore di rete.';
+                    resendAlert.className = 'alert alert-danger';
+                    resendAlert.classList.remove('d-none');
+                });
         });
-    </script>
-</body>
-</html>
+        startTimer();
+    });
+</script>
+{% endblock %}

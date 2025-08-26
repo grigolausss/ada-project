@@ -8,14 +8,47 @@
     <a href="{{ url_for('admin.add_property') }}" class="btn btn-success">Aggiungi Nuovo Immobile</a>
 </div>
 
+<!-- Search and Filter Form -->
+<div class="card bg-light mb-3">
+    <div class="card-body">
+        <form method="GET" action="{{ url_for('admin.properties') }}" class="form-inline">
+            <div class="form-group mr-3">
+                <label for="q" class="mr-2">Cerca:</label>
+                <input type="text" class="form-control" id="q" name="q" placeholder="RIF, titolo, zona..." value="{{ q or '' }}">
+            </div>
+            <div class="form-group mr-3">
+                <label for="filter_zona" class="mr-2">Filtra per Zona:</label>
+                <select class="form-control" id="filter_zona" name="filter_zona">
+                    <option value="">-- Tutte le Zone --</option>
+                    {% for zona in available_zones %}
+                    <option value="{{ zona }}" {% if zona == filter_zona %}selected{% endif %}>{{ zona }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Applica</button>
+            <a href="{{ url_for('admin.properties') }}" class="btn btn-secondary ml-2">Pulisci Filtri</a>
+        </form>
+    </div>
+</div>
+
+
 <table class="table table-striped table-hover">
     <thead class="thead-dark">
         <tr>
-            <th>RIF</th>
+            {% set next_order = 'desc' if sort_by == 'rif' and sort_order == 'asc' else 'asc' %}
+            <th><a href="{{ url_for('admin.properties', q=q, filter_zona=filter_zona, sort_by='rif', sort_order=next_order) }}" class="text-white">RIF</a></th>
+
             <th>Titolo</th>
-            <th>Zona</th>
-            <th>MQ</th>
-            <th>Prezzo Min</th>
+
+            {% set next_order = 'desc' if sort_by == 'zona' and sort_order == 'asc' else 'asc' %}
+            <th><a href="{{ url_for('admin.properties', q=q, filter_zona=filter_zona, sort_by='zona', sort_order=next_order) }}" class="text-white">Zona</a></th>
+
+            {% set next_order = 'desc' if sort_by == 'mq' and sort_order == 'asc' else 'asc' %}
+            <th><a href="{{ url_for('admin.properties', q=q, filter_zona=filter_zona, sort_by='mq', sort_order=next_order) }}" class="text-white">MQ</a></th>
+
+            {% set next_order = 'desc' if sort_by == 'prezzo' and sort_order == 'asc' else 'asc' %}
+            <th><a href="{{ url_for('admin.properties', q=q, filter_zona=filter_zona, sort_by='prezzo', sort_order=next_order) }}" class="text-white">Prezzo Min</a></th>
+
             <th>Prezzo Max</th>
             <th>Stato</th>
             <th>Azioni</th>
@@ -40,7 +73,7 @@
         </tr>
         {% else %}
         <tr>
-            <td colspan="8" class="text-center">Nessun immobile trovato.</td>
+            <td colspan="8" class="text-center">Nessun immobile trovato. Prova a modificare i filtri.</td>
         </tr>
         {% endfor %}
     </tbody>
