@@ -1,0 +1,21 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Importa Immobili da File{% endblock %}
+
+{% block content %}
+<h1>Importa Immobili da File Excel/CSV</h1>
+<p>Carica un file per iniziare il processo di importazione. Il file deve contenere colonne con almeno 'RIF' e 'Titolo'.</p>
+<hr>
+
+<div class="card">
+    <div class="card-body">
+        <form method="POST" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="import_file">Seleziona il file da importare</label>
+                <input type="file" class="form-control-file" id="import_file" name="import_file" required accept=".csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel">
+            </div>
+            <button type="submit" class="btn btn-primary">Carica e analizza</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -181,8 +181,8 @@ def view_plan():
 
     property_asset = PropertyAsset.query.join(Property).filter(Property.rif == db_session_obj.rif, PropertyAsset.tipo == 'planimetria').first()
     if not property_asset:
-        flash('Planimetria non disponibile.', 'danger')
-        return redirect(url_for('main.property_details', rif=db_session_obj.rif))
+        flash('Planimetria non disponibile per questo immobile. Si procede con le domande finali.', 'info')
+        return redirect(url_for('main.post_view_questionnaire'))
 
     if lead.stato != 'planimetria vista':
         event = Event(session_id=session_id, tipo='vista_planimetria', meta_json={'ip': request.remote_addr})

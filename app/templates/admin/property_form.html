@@ -5,7 +5,8 @@
 {% block content %}
 <h1>{{ 'Modifica' if property else 'Aggiungi' }} Immobile</h1>
 <hr>
-<form method="POST">
+<!-- Add enctype for file uploads -->
+<form method="POST" enctype="multipart/form-data">
     <div class="form-row">
         <div class="form-group col-md-3">
             <label for="rif">RIF (Univoco)</label>
@@ -48,6 +49,14 @@
         <label for="caratteristiche_json">Caratteristiche (JSON)</label>
         <textarea class="form-control" id="caratteristiche_json" name="caratteristiche_json" rows="4">{{ property.caratteristiche_json | tojson if property and property.caratteristiche_json else '{}' }}</textarea>
         <small class="form-text text-muted">Inserire in formato JSON, es: {"camere": 3, "bagni": 2}</small>
+    </div>
+    <!-- File Upload Field -->
+    <div class="form-group">
+        <label for="planimetria">Carica Planimetria (opzionale)</label>
+        <input type="file" class="form-control-file" id="planimetria" name="planimetria">
+        {% if property and property.assets and property.assets|selectattr('tipo', 'equalto', 'planimetria')|first %}
+            <small class="form-text text-muted">Planimetria attuale: {{ (property.assets|selectattr('tipo', 'equalto', 'planimetria')|first).path_privato }}. Caricandone una nuova, la sostituirai.</small>
+        {% endif %}
     </div>
     <div class="form-group form-check">
         <input type="checkbox" class="form-check-input" id="attivo" name="attivo" value="y" {% if not property or property.attivo %}checked{% endif %}>
