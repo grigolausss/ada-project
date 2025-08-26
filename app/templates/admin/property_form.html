@@ -1,0 +1,59 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Modifica' if property else 'Aggiungi' }} Immobile{% endblock %}
+
+{% block content %}
+<h1>{{ 'Modifica' if property else 'Aggiungi' }} Immobile</h1>
+<hr>
+<form method="POST">
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="rif">RIF (Univoco)</label>
+            <input type="text" class="form-control" id="rif" name="rif" value="{{ property.rif if property else '' }}" required>
+        </div>
+        <div class="form-group col-md-9">
+            <label for="titolo">Titolo</label>
+            <input type="text" class="form-control" id="titolo" name="titolo" value="{{ property.titolo if property else '' }}" required>
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="tipologia">Tipologia</label>
+            <input type="text" class="form-control" id="tipologia" name="tipologia" value="{{ property.tipologia if property else '' }}">
+        </div>
+        <div class="form-group col-md-6">
+            <label for="zona">Zona</label>
+            <input type="text" class="form-control" id="zona" name="zona" value="{{ property.zona if property else '' }}">
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-3">
+            <label for="mq">Metratura (mq)</label>
+            <input type="number" class="form-control" id="mq" name="mq" value="{{ property.mq if property else '' }}">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="prezzo_min">Prezzo Min</label>
+            <input type="number" step="0.01" class="form-control" id="prezzo_min" name="prezzo_min" value="{{ property.prezzo_min if property else '' }}">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="prezzo_max">Prezzo Max</label>
+            <input type="number" step="0.01" class="form-control" id="prezzo_max" name="prezzo_max" value="{{ property.prezzo_max if property else '' }}">
+        </div>
+        <div class="form-group col-md-3">
+            <label for="stato">Stato</label>
+            <input type="text" class="form-control" id="stato" name="stato" value="{{ property.stato if property else '' }}">
+        </div>
+    </div>
+     <div class="form-group">
+        <label for="caratteristiche_json">Caratteristiche (JSON)</label>
+        <textarea class="form-control" id="caratteristiche_json" name="caratteristiche_json" rows="4">{{ property.caratteristiche_json | tojson if property and property.caratteristiche_json else '{}' }}</textarea>
+        <small class="form-text text-muted">Inserire in formato JSON, es: {"camere": 3, "bagni": 2}</small>
+    </div>
+    <div class="form-group form-check">
+        <input type="checkbox" class="form-check-input" id="attivo" name="attivo" value="y" {% if not property or property.attivo %}checked{% endif %}>
+        <label class="form-check-label" for="attivo">Immobile Attivo</label>
+    </div>
+    <button type="submit" class="btn btn-primary">Salva Immobile</button>
+    <a href="{{ url_for('admin.properties') }}" class="btn btn-secondary">Annulla</a>
+</form>
+{% endblock %}

@@ -48,10 +48,10 @@ def index():
             db.session.add(otp)
             db.session.commit()
             print(f"-----> OTP generato per {email}: {otp_code} <-----")
-            flash('Per testare, usa il codice di bypass 123456. (Il codice reale è visibile nel terminale)', 'info')
+            flash('Un codice di verifica è stato generato e stampato nel terminale per finalità di test.', 'info')
         except Exception as e:
             print(f"ERRORE: Impossibile salvare l'OTP nel database. {e}")
-            flash('Errore del server durante la generazione del codice. Usa il codice di bypass 123456.', 'warning')
+            flash('Errore del server durante la generazione del codice. Riprova.', 'warning')
 
         return redirect(url_for('main.verify_otp', email=email))
 
