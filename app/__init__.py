@@ -4,7 +4,6 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from dotenv import load_dotenv
 from flask_login import LoginManager
-from flask_talisman import Talisman
 
 load_dotenv()
 
@@ -12,21 +11,6 @@ db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
 login_manager.login_view = 'admin.login'
-
-# Define a basic Content Security Policy
-csp = {
-    'default-src': '\'self\'',
-    'script-src': [
-        '\'self\'',
-        'code.jquery.com',
-        'cdn.jsdelivr.net',
-        'stackpath.bootstrapcdn.com'
-    ],
-    'style-src': [
-        '\'self\'',
-        'stackpath.bootstrapcdn.com'
-    ]
-}
 
 def create_app():
     app = Flask(__name__, instance_relative_config=True)
@@ -53,7 +37,6 @@ def create_app():
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
-    Talisman(app, content_security_policy=csp)
 
     from app.models import User
 

@@ -6,4 +6,3 @@ psycopg2-binary
 requests
 Flask-Login
 Flask-WTF
-Flask-Talisman
