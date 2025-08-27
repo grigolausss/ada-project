@@ -1,0 +1,44 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{{ 'Modifica' if user else 'Aggiungi' }} Utente{% endblock %}
+
+{% block content %}
+<h1>{{ 'Modifica' if user else 'Aggiungi' }} Utente</h1>
+<hr>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="form-group">
+        {{ form.email.label }}
+        {{ form.email(class="form-control", disabled=True if user else False) }}
+        {% if form.email.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.email.errors %}{{ error }}{% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.password.label }}
+        {{ form.password(class="form-control") }}
+        {% if user %}
+            <small class="form-text text-muted">Lasciare vuoto per non modificare la password.</small>
+        {% endif %}
+        {% if form.password.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.password.errors %}{{ error }}{% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    <div class="form-group">
+        {{ form.password2.label }}
+        {{ form.password2(class="form-control") }}
+        {% if form.password2.errors %}
+            <div class="invalid-feedback d-block">
+                {% for error in form.password2.errors %}{{ error }}{% endfor %}
+            </div>
+        {% endif %}
+    </div>
+
+    {{ form.submit(class="btn btn-primary") }}
+    <a href="{{ url_for('admin.users') }}" class="btn btn-secondary">Annulla</a>
+</form>
+{% endblock %}

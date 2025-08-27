@@ -13,18 +13,25 @@ login_manager = LoginManager()
 login_manager.login_view = 'admin.login'
 
 def create_app():
-    # Simplified app creation, removing instance_relative_config
-    app = Flask(__name__)
+    # Use instance_relative_config to make paths relative to the instance folder
+    app = Flask(__name__, instance_relative_config=True)
+
+    # Ensure the instance folder exists before any configuration
+    try:
+        os.makedirs(app.instance_path)
+    except OSError:
+        pass
 
     # --- Configuration ---
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-very-secret-key-that-should-be-changed')
 
-    # Simplest possible database URI. This will create app.db in the project root.
-    # This is the most robust solution to avoid all pathing issues.
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///app.db'
+    # Set the database URI to an absolute path within the instance folder
+    # This is the robust solution that works across different execution contexts
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(app.instance_path, 'app.db')
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # Load email configuration from environment variables
+    # Load email configuration
     app.config.from_mapping(
         MAIL_SERVER=os.environ.get('MAIL_SERVER'),
         MAIL_PORT=int(os.environ.get('MAIL_PORT', 587)),
@@ -33,7 +40,7 @@ def create_app():
         MAIL_PASSWORD=os.environ.get('MAIL_PASSWORD')
     )
 
-    # Initialize extensions with the app
+    # Initialize extensions
     db.init_app(app)
     migrate.init_app(app, db)
     login_manager.init_app(app)
