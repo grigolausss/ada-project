@@ -16,18 +16,21 @@
             </div>
             <div class="card-body">
                 <form id="post-questionnaire-form" method="POST" action="{{ url_for('main.post_view_questionnaire') }}">
-                    <!-- Form content is unchanged -->
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <!-- Metratura adeguata -->
                     <div class="question-block">
                         <label><strong>La metratura è adeguata?</strong></label>
-                        <input type="hidden" name="adeguata" id="adeguata-hidden" required>
+                        <input type="hidden" name="metratura_adeguata" id="metratura_adeguata-hidden" required>
                         <div>
-                            <button type="button" class="btn answer-btn" data-question="adeguata" data-value="Sì, perfetta">Sì, perfetta</button>
-                            <button type="button" class="btn answer-btn" data-question="adeguata" data-value="Sì, ma potrei valutare di più">Sì, ma potrei valutare di più</button>
-                            <button type="button" class="btn answer-btn" data-question="adeguata" data-value="No, troppo piccola">No, troppo piccola</button>
-                            <button type="button" class="btn answer-btn" data-question="adeguata" data-value="No, troppo grande">No, troppo grande</button>
+                            <button type="button" class="btn answer-btn" data-question="metratura_adeguata" data-value="Sì, perfetta">Sì, perfetta</button>
+                            <button type="button" class="btn answer-btn" data-question="metratura_adeguata" data-value="Sì, ma potrei valutare di più">Sì, ma potrei valutare di più</button>
+                            <button type="button" class="btn answer-btn" data-question="metratura_adeguata" data-value="No, troppo piccola">No, troppo piccola</button>
+                            <button type="button" class="btn answer-btn" data-question="metratura_adeguata" data-value="No, troppo grande">No, troppo grande</button>
                         </div>
                     </div>
                     <hr>
+                    <!-- Taglio degli spazi -->
                     <div class="question-block">
                         <label><strong>Il taglio degli spazi è adatto alle sue esigenze?</strong></label>
                         <input type="hidden" name="taglio_spazi" id="taglio_spazi-hidden" required>
@@ -40,6 +43,7 @@
                         <input type="text" class="form-control mt-2 d-none" id="taglio_spazi-other-text" placeholder="Specifica cosa non va">
                     </div>
                     <hr>
+                    <!-- Range di prezzo -->
                     <div class="question-block">
                         <label><strong>Il range di prezzo è sostenibile per lei?</strong></label>
                         <input type="hidden" name="range_prezzo" id="range_prezzo-hidden" required>
@@ -50,6 +54,7 @@
                         </div>
                     </div>
                     <hr>
+                    <!-- Note libere -->
                     <div class="form-group">
                         <label for="note_libere"><strong>Note libere (opzionale)</strong></label>
                         <textarea class="form-control" id="note_libere" name="note_libere" rows="3"></textarea>
@@ -61,6 +66,58 @@
     </div>
 </div>
 <script>
-    // Script is unchanged
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('post-questionnaire-form');
+
+    form.addEventListener('click', function(e) {
+        if (e.target.classList.contains('answer-btn')) {
+            const question = e.target.dataset.question;
+            const value = e.target.dataset.value;
+            const hiddenInput = document.getElementById(question + '-hidden');
+            const otherTextInput = document.getElementById(question + '-other-text');
+
+            document.querySelectorAll(`.answer-btn[data-question='${question}']`).forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            if (e.target.classList.contains('other-btn')) {
+                if (otherTextInput) {
+                    otherTextInput.classList.remove('d-none');
+                    otherTextInput.focus();
+                    hiddenInput.value = otherTextInput.value;
+                }
+            } else {
+                if (otherTextInput) otherTextInput.classList.add('d-none');
+                hiddenInput.value = value;
+            }
+        }
+    });
+
+    form.addEventListener('input', function(e) {
+        if (e.target.matches("input[type='text']") && e.target.id.includes('-other-text')) {
+            const question = e.target.id.replace('-other-text', '');
+            document.getElementById(question + '-hidden').value = e.target.value;
+        }
+    });
+
+    form.addEventListener('submit', function(e) {
+        const hiddenInputs = form.querySelectorAll("input[type='hidden'][required]");
+        let allValid = true;
+        hiddenInputs.forEach(input => {
+            if (!input.value) {
+                allValid = false;
+                const label = input.closest('.question-block').querySelector('label');
+                label.style.color = 'red';
+            } else {
+                 const label = input.closest('.question-block').querySelector('label');
+                label.style.color = '';
+            }
+        });
+
+        if (!allValid) {
+            e.preventDefault();
+            alert('Per favore, rispondi a tutte le domande obbligatorie.');
+        }
+    });
+});
 </script>
 {% endblock %}

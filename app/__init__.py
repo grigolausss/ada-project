@@ -58,4 +58,8 @@ def create_app():
     from app.admin import bp as admin_bp
     app.register_blueprint(admin_bp)
 
+    # Register CLI commands
+    from app import commands
+    app.cli.add_command(commands.seed_db_command)
+
     return app

@@ -183,13 +183,18 @@ def post_view_questionnaire():
     if 'session_id' not in session: return redirect(url_for('main.insert_rif'))
     if request.method == 'POST':
         session_id = session['session_id']
+        # Clear previous post-answers for this session to avoid duplicates
+        Answer.query.filter_by(session_id=session_id, fase='post').delete()
         for key, value in request.form.items():
-             if key != 'csrf_token':
+             if key != 'csrf_token' and value:
                 answer = Answer(session_id=session_id, domanda_id=key, domanda_testo=key.replace('_', ' ').title(), risposta=value, fase='post')
                 db.session.add(answer)
         db.session.commit()
         return redirect(url_for('main.final_outcome'))
-    return render_template('main/post_view_questionnaire.html')
+
+    # Manually generate CSRF token for the template
+    csrf_token = generate_csrf()
+    return render_template('main/post_view_questionnaire.html', csrf_token=csrf_token)
 
 @bp.route('/final_outcome')
 @otp_required

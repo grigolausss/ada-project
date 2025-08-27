@@ -19,7 +19,7 @@
             </div>
             <div class="card-body">
                 <form id="questionnaire-form" method="POST" action="">
-                    {{ form.hidden_tag() }} <!-- Assuming a form object for CSRF, will add later -->
+                    {{ form.hidden_tag()|safe }} <!-- CSRF Token -->
 
                     <!-- Deve vendere? -->
                     <div class="question-block">
