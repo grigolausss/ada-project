@@ -1,39 +1,24 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inserisci RIF</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-6 offset-md-3">
-                <div class="card">
-                    <div class="card-header">
-                        <h3>Inserisci il RIF dell'immobile</h3>
-                        <p>Esempi: R806, r530-d, RIF: G210</p>
+{% extends "base.html" %}
+{% block title %}Inserisci RIF{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Inserisci il RIF dell'immobile</h3>
+                <p>Esempi: R806, r530-d, RIF: G210</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.insert_rif') }}">
+                    <div class="form-group">
+                        <label for="rif">RIF</label>
+                        <input type="text" class="form-control" id="rif" name="rif" required>
                     </div>
-                    <div class="card-body">
-                        {% with messages = get_flashed_messages(with_categories=true) %}
-                            {% if messages %}
-                                {% for category, message in messages %}
-                                    <div class="alert alert-{{ category }}">{{ message }}</div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
-                        <form method="POST" action="{{ url_for('main.insert_rif') }}">
-                            <div class="form-group">
-                                <label for="rif">RIF</label>
-                                <input type="text" class="form-control" id="rif" name="rif" required>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">Cerca Immobile</button>
-                        </form>
-                    </div>
-                </div>
+                    <button type="submit" class="btn btn-primary btn-block">Cerca Immobile</button>
+                </form>
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}

@@ -1,31 +1,21 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grazie!</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    {% if redirect_url %}
-    <meta http-equiv="refresh" content="5;url={{ redirect_url }}">
-    {% endif %}
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="row">
-            <div class="col-md-8 offset-md-2 text-center">
-                <div class="card">
-                    <div class="card-header">
-                        <h1>Grazie!</h1>
-                    </div>
-                    <div class="card-body">
-                        <p class="lead">{{ message }}</p>
-                        {% if redirect_url %}
-                        <p>Verrai reindirizzato al nostro sito principale tra 5 secondi. Se non vieni reindirizzato, <a href="{{ redirect_url }}">clicca qui</a>.</p>
-                        {% endif %}
-                    </div>
-                </div>
+{% extends "base.html" %}
+{% block title %}Grazie!{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h1>Grazie!</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ message }}</p>
+                {% if redirect_url %}
+                <p>Verrai reindirizzato al nostro sito principale tra 5 secondi. Se non vieni reindirizzato, <a href="{{ redirect_url }}">clicca qui</a>.</p>
+                <meta http-equiv="refresh" content="5;url={{ redirect_url }}">
+                {% endif %}
             </div>
         </div>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
