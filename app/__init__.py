@@ -13,23 +13,15 @@ login_manager = LoginManager()
 login_manager.login_view = 'admin.login'
 
 def create_app():
-    # Create the Flask app instance, specifying the instance path
-    # This is crucial for making paths unambiguous.
-    app = Flask(__name__, instance_relative_config=True)
-
-    # Ensure the instance folder exists before any configuration
-    try:
-        os.makedirs(app.instance_path)
-    except OSError:
-        pass
+    # Simplified app creation, removing instance_relative_config
+    app = Flask(__name__)
 
     # --- Configuration ---
-    # Set a default secret key, but allow overriding it
     app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'a-very-secret-key-that-should-be-changed')
 
-    # Set the database URI to an absolute path within the instance folder
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or \
-        'sqlite:///' + os.path.join(app.instance_path, 'app.db')
+    # Simplest possible database URI. This will create app.db in the project root.
+    # This is the most robust solution to avoid all pathing issues.
+    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL') or 'sqlite:///app.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     # Load email configuration from environment variables
