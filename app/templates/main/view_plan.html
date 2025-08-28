@@ -2,9 +2,32 @@
 {% block title %}Planimetria{% endblock %}
 
 {% block content %}
+<style>
+    #plan-container {
+        position: relative;
+        cursor: not-allowed;
+        -webkit-user-select: none; /* Safari */
+        -ms-user-select: none; /* IE 10+ */
+        user-select: none; /* Standard syntax */
+    }
+    #security-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        z-index: 10000;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        font-size: 2rem;
+        color: #333;
+    }
+</style>
 <div class="row">
     <div class="col-12 text-center">
-        <div id="security-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 10000; display: none; justify-content: center; align-items: center; font-size: 2rem; color: #333;">
+        <div id="security-overlay">
             <p>La visibilità è stata persa. Ricarica la pagina.</p>
         </div>
         <div class="card mt-4">
@@ -12,7 +35,7 @@
                 <h3>Planimetria</h3>
                 <p class="text-muted">Per tutela dei proprietari la planimetria è visibile con watermark personale e non è scaricabile.</p>
             </div>
-            <div class="card-body" id="plan-container" style="cursor: not-allowed; -webkit-user-select: none; user-select: none;">
+            <div class="card-body" id="plan-container" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
                 <canvas id="plan-canvas"></canvas>
             </div>
             <div class="card-footer">
@@ -23,6 +46,65 @@
 </div>
 
 <script>
-    // Script is unchanged
+document.addEventListener('DOMContentLoaded', function() {
+    const canvas = document.getElementById('plan-canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    // The asset_path is passed from the view_plan route
+    img.src = "{{ url_for('main.serve_file', filename=asset_path) }}";
+
+    img.onload = () => {
+        // Set canvas size to image size for clarity
+        canvas.width = img.width;
+        canvas.height = img.height;
+
+        // Draw the image
+        ctx.drawImage(img, 0, 0);
+
+        // Prepare watermark
+        const watermarkText = "{{ lead.email }} | {{ now.strftime('%Y-%m-%d %H:%M') }} UTC";
+        ctx.font = "bold 16px Arial";
+        ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+        ctx.textAlign = "center";
+
+        // Add multiple watermarks across the canvas
+        for (let y = 50; y < canvas.height; y += 150) {
+            for (let x = 0; x < canvas.width; x += 300) {
+                 ctx.save();
+                 ctx.translate(x, y);
+                 ctx.rotate(-0.25); // Rotate slightly
+                 ctx.fillText(watermarkText, 0, 0);
+                 ctx.restore();
+            }
+        }
+    };
+
+    img.onerror = () => {
+        const container = document.getElementById('plan-container');
+        container.innerHTML = '<p class="text-danger font-weight-bold">Impossibile caricare l\'immagine della planimetria. Potrebbe non essere stata ancora caricata.</p>';
+    };
+
+    // Block printing
+    window.onbeforeprint = () => {
+        alert("La stampa non è consentita per proteggere la privacy del proprietario.");
+        return false;
+    };
+
+    // Detect when user switches tabs
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            document.getElementById('security-overlay').style.display = 'flex';
+        }
+    });
+
+    // Block Ctrl+P and Cmd+P for printing
+    document.addEventListener('keydown', function(e) {
+        if ((e.ctrlKey || e.metaKey) && e.key === 'p') {
+            e.preventDefault();
+            alert("La stampa non è consentita per proteggere la privacy del proprietario.");
+        }
+    });
+});
 </script>
 {% endblock %}

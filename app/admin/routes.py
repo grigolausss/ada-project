@@ -158,6 +158,7 @@ def properties():
 
 def populate_property_from_form(prop, form):
     prop.rif, prop.titolo, prop.tipologia, prop.zona, prop.stato = form.get('rif'), form.get('titolo'), form.get('tipologia'), form.get('zona'), form.get('stato')
+    prop.indirizzo_completo = form.get('indirizzo_completo')
     prop.mq = int(form.get('mq')) if form.get('mq') else None
     prop.prezzo_min = float(form.get('prezzo_min')) if form.get('prezzo_min') else None
     prop.prezzo_max = float(form.get('prezzo_max')) if form.get('prezzo_max') else None

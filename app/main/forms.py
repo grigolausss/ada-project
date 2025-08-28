@@ -12,3 +12,7 @@ class RegistrationForm(FlaskForm):
 class OTPForm(FlaskForm):
     otp = StringField('Codice OTP', validators=[DataRequired()])
     submit = SubmitField('Verifica')
+
+class RIFForm(FlaskForm):
+    rif = StringField('Codice RIF Immobile', validators=[DataRequired()])
+    submit = SubmitField('Cerca Immobile')

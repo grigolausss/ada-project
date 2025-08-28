@@ -43,6 +43,10 @@
                     <input type="text" class="form-control" id="stato" name="stato" value="{{ property.stato if property else '' }}">
                 </div>
             </div>
+            <div class="form-group">
+                <label for="indirizzo_completo">Indirizzo Completo (Verrà mostrato solo alla fine)</label>
+                <input type="text" class="form-control" id="indirizzo_completo" name="indirizzo_completo" value="{{ property.indirizzo_completo if property else '' }}">
+            </div>
             <div class="form-row">
                 <div class="form-group col-md-4">
                     <label for="mq">Metratura (mq)</label>

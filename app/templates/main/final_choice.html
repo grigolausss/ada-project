@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}La tua Scelta Finale{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Cosa ne pensi?</h3>
+            </div>
+            <div class="card-body">
+                <p>Grazie per aver completato il questionario. Ora hai due opzioni.</p>
+                <div class="row">
+                    <!-- Branch A: Interested -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">Sono Interessato</h5>
+                                <p class="card-text">Vorrei scoprire l'indirizzo esatto dell'immobile per valutare la posizione.</p>
+                                <form action="{{ url_for('main.show_address') }}" method="POST" class="mt-auto">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-success btn-lg btn-block">Scopri l'Indirizzo</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Branch B: Not Interested -->
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">Non fa per me</h5>
+                                <p class="card-text">L'immobile non mi convince. Vorrei spiegare il perché e vedere delle alternative.</p>
+                                <form action="{{ url_for('main.rejection_questionnaire') }}" method="POST" class="mt-auto">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button type="submit" class="btn btn-danger btn-lg btn-block">Non sono Interessato</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

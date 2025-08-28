@@ -1,8 +1,8 @@
-"""Initial migration.
+"""Initial migration from existing models
 
-Revision ID: d84e42242ee8
+Revision ID: 8dfe49212492
 Revises:
-Create Date: 2025-08-25 07:52:42.547860
+Create Date: 2025-08-28 15:01:31.739213
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd84e42242ee8'
+revision = '8dfe49212492'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -45,6 +45,7 @@ def upgrade():
     sa.Column('tipologia', sa.String(length=100), nullable=True),
     sa.Column('zona', sa.String(length=100), nullable=True),
     sa.Column('indirizzo_parziale', sa.String(length=200), nullable=True),
+    sa.Column('indirizzo_completo', sa.String(length=255), nullable=True),
     sa.Column('mq', sa.Integer(), nullable=True),
     sa.Column('prezzo_min', sa.Float(), nullable=True),
     sa.Column('prezzo_max', sa.Float(), nullable=True),
@@ -53,6 +54,22 @@ def upgrade():
     sa.Column('attivo', sa.Boolean(), nullable=True),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('rif')
+    )
+    op.create_table('users',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('email', sa.String(length=120), nullable=False),
+    sa.Column('password_hash', sa.String(length=128), nullable=True),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('email')
+    )
+    op.create_table('audit_logs',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('user_id', sa.Integer(), nullable=False),
+    sa.Column('action', sa.String(length=100), nullable=False),
+    sa.Column('details', sa.String(length=500), nullable=True),
+    sa.Column('timestamp', sa.DateTime(), nullable=True),
+    sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
+    sa.PrimaryKeyConstraint('id')
     )
     op.create_table('property_assets',
     sa.Column('id', sa.Integer(), nullable=False),
@@ -102,6 +119,8 @@ def downgrade():
     op.drop_table('answers')
     op.drop_table('sessions')
     op.drop_table('property_assets')
+    op.drop_table('audit_logs')
+    op.drop_table('users')
     op.drop_table('properties')
     op.drop_table('otps')
     op.drop_table('leads')

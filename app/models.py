@@ -9,6 +9,7 @@ class Property(db.Model):
     tipologia = db.Column(db.String(100))
     zona = db.Column(db.String(100))
     indirizzo_parziale = db.Column(db.String(200))
+    indirizzo_completo = db.Column(db.String(255)) # New field for the full address
     mq = db.Column(db.Integer)
     prezzo_min = db.Column(db.Float)
     prezzo_max = db.Column(db.Float)

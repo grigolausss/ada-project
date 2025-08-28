@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Feedback Immobile{% endblock %}
+
+{% block content %}
+<style>
+    .answer-btn { margin: 5px; border: 1px solid #007bff; color: #007bff; }
+    .answer-btn.active { background-color: #007bff; color: white; }
+    .question-block { margin-bottom: 2rem; }
+</style>
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Non fa per te?</h3>
+                <p>Aiutaci a capire perché, ti proporremo delle alternative migliori.</p>
+            </div>
+            <div class="card-body">
+                <form id="rejection-form" method="POST" action="{{ url_for('main.rejection_questionnaire') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+
+                    <div class="question-block">
+                        <label><strong>Qual è il motivo principale del tuo disinteresse?</strong></label>
+                        <input type="hidden" name="motivo_principale" id="motivo_principale-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="motivo_principale" data-value="Prezzo troppo alto">Prezzo troppo alto</button>
+                            <button type="button" class="btn answer-btn" data-question="motivo_principale" data-value="Metratura non adatta">Metratura non adatta</button>
+                            <button type="button" class="btn answer-btn" data-question="motivo_principale" data-value="Zona non gradita">Zona non gradita</button>
+                            <button type="button" class="btn answer-btn" data-question="motivo_principale" data-value="Disposizione interna">Disposizione interna</button>
+                            <button type="button" class="btn answer-btn" data-question="motivo_principale" data-value="Lavori di ristrutturazione">Lavori di ristrutturazione</button>
+                            <button type="button" class="btn answer-btn other-btn" data-question="motivo_principale">Altro</button>
+                        </div>
+                        <input type="text" class="form-control mt-2 d-none" id="motivo_principale-other-text" placeholder="Specifica il motivo">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">Invia e vedi alternative</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('rejection-form');
+    form.addEventListener('click', function(e) {
+        if (e.target.classList.contains('answer-btn')) {
+            const question = e.target.dataset.question;
+            const value = e.target.dataset.value;
+            const hiddenInput = document.getElementById(question + '-hidden');
+            const otherTextInput = document.getElementById(question + '-other-text');
+
+            document.querySelectorAll(`.answer-btn[data-question='${question}']`).forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            if (e.target.classList.contains('other-btn')) {
+                if (otherTextInput) {
+                    otherTextInput.classList.remove('d-none');
+                    otherTextInput.focus();
+                    hiddenInput.value = otherTextInput.value;
+                }
+            } else {
+                if (otherTextInput) otherTextInput.classList.add('d-none');
+                hiddenInput.value = value;
+            }
+        }
+    });
+    form.addEventListener('input', function(e) {
+        if (e.target.matches("input[type='text']") && e.target.id.includes('-other-text')) {
+            const question = e.target.id.replace('-other-text', '');
+            document.getElementById(question + '-hidden').value = e.target.value;
+        }
+    });
+});
+</script>
+{% endblock %}

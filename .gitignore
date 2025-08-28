@@ -1,0 +1,28 @@
+# Environment variables
+.env
+
+# Instance folder (contains the database)
+/instance/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+.venv*
+venv/
+venv.bak/
+env/
+env.bak/
+
+# Build artifacts
+/dist/
+/build/
+
+# Other
+.DS_Store
+*.swp
+*.swo
+*.swn

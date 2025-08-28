@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Indirizzo Immobile{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Indirizzo Completo</h3>
+            </div>
+            <div class="card-body">
+                <p>Ecco l'indirizzo completo dell'immobile di tuo interesse:</p>
+                <div class="alert alert-info">
+                    <h4>{{ property.indirizzo_completo or "Indirizzo non specificato." }}</h4>
+                </div>
+                <hr>
+                <p>Ora che conosci la posizione esatta, cosa ne pensi?</p>
+                <div class="row">
+                    <div class="col-6">
+                        <form action="{{ url_for('main.address_ok') }}" method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-success btn-lg btn-block">L'indirizzo va bene</button>
+                        </form>
+                    </div>
+                    <div class="col-6">
+                        <form action="{{ url_for('main.rejection_questionnaire') }}" method="POST">
+                             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                             <input type="hidden" name="rejection_reason" value="address_not_ok">
+                             <button type="submit" class="btn btn-danger btn-lg btn-block">L'indirizzo non va bene</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
