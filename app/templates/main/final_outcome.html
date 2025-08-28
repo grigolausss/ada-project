@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Esito Finale{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Cosa ne pensi?</h3>
+            </div>
+            <div class="card-body">
+                <p>Grazie per aver completato il questionario. Sei interessato a questo immobile?</p>
+
+                <button id="interested-btn" class="btn btn-success btn-lg mb-2">Sono Interessato</button>
+                <button id="not-interested-btn" class="btn btn-danger btn-lg mb-2">Non fa per me</button>
+
+                <div id="interested-form" class="mt-4" style="display: none;">
+                    <hr>
+                    <h4>Ottimo!</h4>
+                    <p>Inserisci il tuo numero di telefono e verrai chiamato a breve per fissare un appuntamento.</p>
+                    <form method="POST" action="{{ url_for('main.interested') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}">
+                        <input type="hidden" name="email" value="{{ lead.email }}">
+                        <div class="form-group">
+                            <label for="telefono">Numero di Telefono</label>
+                            <input type="tel" class="form-control" id="telefono" name="telefono" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Invia</button>
+                    </form>
+                </div>
+
+                <div id="not-interested-form" class="mt-4" style="display: none;">
+                    <hr>
+                    <h4>Capito.</h4>
+                    <p>Aiutaci a capire perché questo immobile non fa per te.</p>
+                    <form method="POST" action="{{ url_for('main.not_interested') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token_value }}">
+                        <input type="hidden" name="email" value="{{ lead.email }}">
+                        <div class="form-group">
+                            <label for="reason">Motivazione principale</label>
+                            <select class="form-control" id="reason" name="reason">
+                                <option>Prezzo troppo alto</option>
+                                <option>Metratura non adeguata</option>
+                                <option>Zona non di mio gradimento</option>
+                                <option>Disposizione interna non adatta</option>
+                                <option>Altro</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="reason_text">Dettagli (opzionale)</label>
+                            <textarea class="form-control" id="reason_text" name="reason_text" rows="2"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-secondary btn-block">Invia e vedi alternative</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+  (function () {
+    const interestedBtn = document.getElementById('interested-btn');
+    const notInterestedBtn = document.getElementById('not-interested-btn');
+    const interestedForm = document.getElementById('interested-form');
+    const notInterestedForm = document.getElementById('not-interested-form');
+
+    function show(el) { el.style.display = 'block'; el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+    function hide(el) { el.style.display = 'none'; }
+
+    if (interestedBtn && notInterestedBtn && interestedForm && notInterestedForm) {
+      interestedBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(interestedForm);
+        hide(notInterestedForm);
+      });
+      notInterestedBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        show(notInterestedForm);
+        hide(interestedForm);
+      });
+    }
+  })();
+</script>
+{% endblock %}

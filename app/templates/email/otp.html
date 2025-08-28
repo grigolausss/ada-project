@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { width: 90%; max-width: 600px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; }
+        .header { font-size: 1.5rem; color: #0056b3; }
+        .otp-code { font-size: 2rem; font-weight: bold; color: #d9534f; margin: 20px 0; text-align: center; letter-spacing: 5px; padding: 10px; border: 1px dashed #ddd; }
+        .footer { font-size: 0.9rem; color: #777; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p class="header">Ciao {{ lead.nome }},</p>
+        <p>Grazie per il tuo interesse.</p>
+        <p>Ecco il tuo codice di verifica monouso (OTP) per accedere ai dettagli dell'immobile. Il codice scade tra 10 minuti.</p>
+        <div class="otp-code">
+            {{ otp_code }}
+        </div>
+        <p>Se non hai richiesto tu questo codice, per favore ignora questa email.</p>
+        <p class="footer">Grazie,<br>Il team di Arte di Abitare</p>
+    </div>
+</body>
+</html>

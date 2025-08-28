@@ -1,0 +1,61 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Mappatura Colonne Importazione{% endblock %}
+
+{% block content %}
+<h1>Fase 2: Mappatura Colonne</h1>
+<p>Associa le colonne del tuo file ai campi del database. Il sistema ha provato a indovinare le associazioni più probabili.</p>
+<hr>
+
+<form method="POST">
+    <div class="row">
+        {% for header in headers %}
+        <div class="col-md-3 mb-3">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <strong>{{ header }}</strong>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label for="map_{{ header }}">Associa a:</label>
+                        <select name="map_{{ header }}" class="form-control">
+                            <option value="">-- Ignora questa colonna --</option>
+                            {% for field in db_fields %}
+                                <option value="{{ field }}" {% if header.lower().replace(' ', '_') in field %}selected{% endif %}>
+                                    {{ field }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary mt-3">Prosegui con la Validazione</button>
+</form>
+
+<h3 class="mt-5">Anteprima Dati</h3>
+<div class="table-responsive">
+    <table class="table table-bordered table-sm">
+        <thead class="thead-light">
+            <tr>
+                {% for header in preview_data.columns %}
+                    <th>{{ header }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for index, row in preview_data.iterrows() %}
+            <tr>
+                {% for item in row %}
+                    <td>{{ item }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock %}

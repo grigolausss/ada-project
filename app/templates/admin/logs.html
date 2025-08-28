@@ -1,0 +1,34 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Log Attività Dipendenti{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Log Attività Dipendenti</h1>
+</div>
+
+<table class="table table-striped table-hover">
+    <thead class="thead-dark">
+        <tr>
+            <th>Data e Ora</th>
+            <th>Utente</th>
+            <th>Azione</th>
+            <th>Dettagli</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for log in logs %}
+        <tr>
+            <td>{{ log.timestamp.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+            <td>{{ log.user.email }}</td>
+            <td><span class="badge badge-info">{{ log.action }}</span></td>
+            <td>{{ log.details }}</td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="4" class="text-center">Nessuna attività registrata.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

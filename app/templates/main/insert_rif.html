@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Inserisci RIF{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h3>Inserisci il RIF dell'immobile</h3>
+                <p>Esempi: R806, r530-d, RIF: G210</p>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('main.insert_rif') }}">
+                    <div class="form-group">
+                        <label for="rif">RIF</label>
+                        <input type="text" class="form-control" id="rif" name="rif" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Cerca Immobile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Grazie!{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8 offset-md-2 text-center">
+        <div class="card mt-5">
+            <div class="card-header">
+                <h1>Grazie!</h1>
+            </div>
+            <div class="card-body">
+                <p class="lead">{{ message }}</p>
+                {% if redirect_url %}
+                <p>Verrai reindirizzato al nostro sito principale tra 5 secondi. Se non vieni reindirizzato, <a href="{{ redirect_url }}">clicca qui</a>.</p>
+                <meta http-equiv="refresh" content="5;url={{ redirect_url }}">
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

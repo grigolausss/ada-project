@@ -1,0 +1,85 @@
+{% extends "admin/base.html" %}
+
+{% block title %}Conferma Importazione{% endblock %}
+
+{% block content %}
+<h1>Fase 3: Conferma Importazione</h1>
+<p>Controlla i dati. Verranno importate solo le righe valide. Le righe con errori verranno ignorate.</p>
+<hr>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h4><span class="badge badge-light">{{ valid_rows|length }}</span> Righe Valide da Importare</h4>
+            </div>
+            {% if valid_rows %}
+            <div class="table-responsive">
+                <table class="table table-sm table-striped mb-0">
+                    <thead>
+                        <tr>
+                            {% for key in valid_rows[0].keys() %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in valid_rows %}
+                        <tr>
+                            {% for value in row.values() %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="card-body">
+                <p class="mb-0">Nessuna riga valida trovata nel file.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {% if error_rows %}
+    <div class="col-12 mt-4">
+        <div class="card">
+            <div class="card-header bg-danger text-white">
+                <h4><span class="badge badge-light">{{ error_rows|length }}</span> Righe con Errori (verranno ignorate)</h4>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-striped mb-0">
+                     <thead>
+                        <tr>
+                            <th>Errore</th>
+                            {% for key in error_rows[0].row_data.keys() %}
+                                <th>{{ key }}</th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row_item in error_rows %}
+                        <tr>
+                            <td><span class="badge badge-danger">{{ row_item.error }}</span></td>
+                            {% for value in row_item.row_data.values() %}
+                                <td>{{ value }}</td>
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% if valid_rows %}
+<form method="POST" class="mt-4" onsubmit="return confirm('Confermi di voler importare {{ valid_rows|length }} immobili? L\'operazione non può essere annullata.');">
+    <button type="submit" class="btn btn-success btn-lg">Conferma e Importa Dati</button>
+    <a href="{{ url_for('admin.import_properties') }}" class="btn btn-secondary btn-lg">Annulla</a>
+</form>
+{% endif %}
+
+{% endblock %}

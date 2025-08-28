@@ -1,0 +1,146 @@
+{% extends "base.html" %}
+{% block title %}Questionario di Qualifica{% endblock %}
+
+{% block content %}
+<style>
+    .answer-btn { margin: 5px; border: 1px solid #007bff; color: #007bff; }
+    .answer-btn.active { background-color: #007bff; color: white; }
+    .question-block { margin-bottom: 2rem; border-bottom: 1px solid #eee; padding-bottom: 1.5rem; }
+    .question-block:last-of-type { border-bottom: none; }
+    label strong { font-size: 1.1rem; }
+</style>
+
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Questionario di Qualifica</h3>
+                <p>Rispondi a queste domande per sbloccare la planimetria.</p>
+            </div>
+            <div class="card-body">
+                <form id="questionnaire-form" method="POST" action="">
+                    {{ form.hidden_tag()|safe }} <!-- CSRF Token -->
+
+                    <!-- Deve vendere? -->
+                    <div class="question-block">
+                        <label><strong>Per l'acquisto della sua nuova casa, deve vendere la sua attuale casa o un un immobile?</strong></label>
+                        <input type="hidden" name="deve_vendere" id="deve_vendere-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="deve_vendere" data-value="Sì">Sì</button>
+                            <button type="button" class="btn answer-btn" data-question="deve_vendere" data-value="No">No</button>
+                        </div>
+                    </div>
+
+                    <!-- Deve fare un mutuo? -->
+                    <div class="question-block">
+                        <label><strong>Deve fare un mutuo per effettuare l'acquisto?</strong></label>
+                        <input type="hidden" name="deve_fare_mutuo" id="deve_fare_mutuo-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="deve_fare_mutuo" data-value="Sì">Sì</button>
+                            <button type="button" class="btn answer-btn" data-question="deve_fare_mutuo" data-value="No">No</button>
+                        </div>
+                        <div id="mutuo_percentuale_div" class="mt-2 d-none">
+                            <label for="mutuo_percentuale">Se sì, che percentuale di mutuo necessita?</label>
+                            <input type="text" class="form-control" name="mutuo_percentuale" id="mutuo_percentuale" placeholder="Es: 80%">
+                        </div>
+                    </div>
+
+                    <!-- Da quanto tempo cerca? -->
+                    <div class="question-block">
+                        <label><strong>Da quanto tempo sta cercando casa?</strong></label>
+                        <input type="hidden" name="tempo_ricerca" id="tempo_ricerca-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="tempo_ricerca" data-value="Meno di 1 mese">Meno di 1 mese</button>
+                            <button type="button" class="btn answer-btn" data-question="tempo_ricerca" data-value="1-3 mesi">1-3 mesi</button>
+                            <button type="button" class="btn answer-btn" data-question="tempo_ricerca" data-value="3-6 mesi">3-6 mesi</button>
+                            <button type="button" class="btn answer-btn" data-question="tempo_ricerca" data-value="Più di 6 mesi">Più di 6 mesi</button>
+                        </div>
+                    </div>
+
+                    <!-- Che tipo di immobile? -->
+                    <div class="question-block">
+                        <label><strong>Che tipo di immobili sta cercando?</strong></label>
+                        <input type="hidden" name="tipo_immobile_cercato" id="tipo_immobile_cercato-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="tipo_immobile_cercato" data-value="Appartamento">Appartamento</button>
+                            <button type="button" class="btn answer-btn" data-question="tipo_immobile_cercato" data-value="Casa singola">Casa singola</button>
+                            <button type="button" class="btn answer-btn" data-question="tipo_immobile_cercato" data-value="Terreno">Terreno</button>
+                            <button type="button" class="btn answer-btn" data-question="tipo_immobile_cercato" data-value="Porzione">Porzione</button>
+                            <button type="button" class="btn answer-btn other-btn" data-question="tipo_immobile_cercato">Altro</button>
+                        </div>
+                        <input type="text" class="form-control mt-2 d-none" id="tipo_immobile_cercato-other-text" placeholder="Specificare tipo immobile">
+                    </div>
+
+                    <!-- In che zona? -->
+                    <div class="question-block">
+                        <label for="zona_ricerca"><strong>In che zona?</strong></label>
+                        <input type="text" class="form-control" name="zona_ricerca" id="zona_ricerca" required>
+                    </div>
+
+                    <!-- Budget massimo? -->
+                    <div class="question-block">
+                        <label><strong>Qual è il budget massimo?</strong></label>
+                        <input type="hidden" name="budget_massimo" id="budget_massimo-hidden" required>
+                        <div>
+                            <button type="button" class="btn answer-btn" data-question="budget_massimo" data-value="< 150.000 €">&lt; 150.000 €</button>
+                            <button type="button" class="btn answer-btn" data-question="budget_massimo" data-value="150.000 - 250.000 €">150.000 - 250.000 €</button>
+                            <button type="button" class="btn answer-btn" data-question="budget_massimo" data-value="250.000 - 400.000 €">250.000 - 400.000 €</button>
+                            <button type="button" class="btn answer-btn" data-question="budget_massimo" data-value="> 400.000 €">&gt; 400.000 €</button>
+                            <button type="button" class="btn answer-btn other-btn" data-question="budget_massimo">Altro</button>
+                        </div>
+                         <input type="text" class="form-control mt-2 d-none" id="budget_massimo-other-text" placeholder="Specificare budget">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block mt-4">Invia risposte e vedi planimetria</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('questionnaire-form');
+
+    form.addEventListener('click', function(e) {
+        if (e.target.classList.contains('answer-btn')) {
+            const question = e.target.dataset.question;
+            const value = e.target.dataset.value;
+            const hiddenInput = document.getElementById(question + '-hidden');
+            const otherTextInput = document.getElementById(question + '-other-text');
+
+            document.querySelectorAll(`.answer-btn[data-question='${question}']`).forEach(btn => btn.classList.remove('active'));
+            e.target.classList.add('active');
+
+            if (e.target.classList.contains('other-btn')) {
+                if (otherTextInput) {
+                    otherTextInput.classList.remove('d-none');
+                    otherTextInput.focus();
+                    hiddenInput.value = otherTextInput.value;
+                }
+            } else {
+                if (otherTextInput) otherTextInput.classList.add('d-none');
+                hiddenInput.value = value;
+            }
+
+            // Special logic for mortgage percentage
+            if (question === 'deve_fare_mutuo') {
+                const mutuoDiv = document.getElementById('mutuo_percentuale_div');
+                if (value === 'Sì') {
+                    mutuoDiv.classList.remove('d-none');
+                } else {
+                    mutuoDiv.classList.add('d-none');
+                }
+            }
+        }
+    });
+
+    form.addEventListener('input', function(e) {
+        if (e.target.matches("input[type='text']") && e.target.id.includes('-other-text')) {
+            const question = e.target.id.replace('-other-text', '');
+            document.getElementById(question + '-hidden').value = e.target.value;
+        }
+    });
+});
+</script>
+{% endblock %}

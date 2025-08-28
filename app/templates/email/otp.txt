@@ -1,0 +1,13 @@
+Ciao {{ lead.nome }},
+
+Grazie per il tuo interesse.
+
+Ecco il tuo codice di verifica monouso (OTP) per accedere ai dettagli dell'immobile.
+Il codice scade tra 10 minuti.
+
+Il tuo codice: {{ otp_code }}
+
+Se non hai richiesto tu questo codice, per favore ignora questa email.
+
+Grazie,
+Il team di Arte di Abitare

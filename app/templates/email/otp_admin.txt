@@ -1,0 +1,13 @@
+Ciao {{ user.email }},
+
+Qualcuno (speriamo tu) ha appena inserito la password corretta per il tuo account sul pannello di amministrazione ADA.
+
+Per completare l'accesso, inserisci questo codice di verifica (OTP).
+Il codice scade tra 5 minuti.
+
+Il tuo codice: {{ otp_code }}
+
+Se non hai richiesto tu questo accesso, contatta immediatamente un amministratore.
+
+Grazie,
+Sistema di Sicurezza ADA
