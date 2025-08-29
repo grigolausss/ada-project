@@ -10,7 +10,7 @@ import string
 
 # --- Configuration ---
 BASE_URL = "http://127.0.0.1:5000"
-TEST_EMAIL = f"test_user_{''.join(random.choices(string.ascii_lowercase, k=8))}@example.com"
+TEST_EMAIL = f"test_user_{int(time.time())}@example.com"
 TEST_NAME = "Test"
 TEST_RIF = "R001" # Assuming a property with this RIF exists
 
@@ -26,9 +26,8 @@ class EndToEndTest(unittest.TestCase):
 
         # Create all database tables
         with cls.app.app_context():
-            db.create_all() # Or use upgrade() if you have migrations
-            # upgrade() is better if you have existing migrations
-            # upgrade()
+            db.drop_all()
+            db.create_all()
 
         # Ensure a test property exists
         with cls.app.app_context():
@@ -65,7 +64,7 @@ class EndToEndTest(unittest.TestCase):
             page.goto(f"{BASE_URL}/")
             print(f"Current URL: {page.url}")
             print(f"Current Title: {page.title()}")
-            time.sleep(5) # Pause to allow manual inspection or log checking
+            time.sleep(1) # Short pause
             expect(page).to_have_title("Registrazione Lead")
             page.fill("input[name='nome']", TEST_NAME)
             page.fill("input[name='cognome']", "User") # Added cognome
@@ -128,8 +127,10 @@ class EndToEndTest(unittest.TestCase):
             # 7. Post-view Questionnaire
             print("On Post-view Questionnaire page...")
             expect(page).to_have_url(f"{BASE_URL}/post_view_questionnaire")
-            page.check("input[name='plan_liked'][value='Sì, molto']")
-            page.check("input[name='next_step'][value='Vorrei prenotare una visita']")
+            page.fill("input[name='zona_ricerca']", "Test Zone")
+            page.check("input[name='camere_necessarie'][value='2']")
+            page.fill("textarea[name='caratteristiche_casa']", "Test characteristics")
+            page.check("input[name='urgenza'][value='Media']")
             page.click("button[type='submit']")
             print("Post-view questionnaire submitted.")
 

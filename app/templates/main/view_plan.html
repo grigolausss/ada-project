@@ -36,7 +36,7 @@
                 <p class="text-muted">Per tutela dei proprietari la planimetria è visibile con watermark personale e non è scaricabile.</p>
             </div>
             <div class="card-body" id="plan-container" oncontextmenu="return false;" ondragstart="return false;" onselectstart="return false;">
-                <canvas id="plan-canvas"></canvas>
+                <canvas id="plan-canvas" style="max-width: 100%; height: auto;"></canvas>
             </div>
             <div class="card-footer">
                 <a href="{{ url_for('main.post_view_questionnaire') }}" class="btn btn-primary">Prosegui</a>
@@ -50,27 +50,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const canvas = document.getElementById('plan-canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
+    const container = document.getElementById('plan-container');
 
-    // The asset_path is passed from the view_plan route
-    img.src = "{{ url_for('main.serve_file', filename=asset_path) }}";
+    // The asset_path is passed from the view_plan route.
+    // Ensure the URL is correctly generated without being escaped by Jinja2.
+    img.src = "{{ floor_plan_url | safe }}";
 
-    img.onload = () => {
-        // Set canvas size to image size for clarity
-        canvas.width = img.width;
-        canvas.height = img.height;
+    const drawCanvas = () => {
+        // Determine the scale to fit the image within the container
+        const maxWidth = container.clientWidth;
+        const scale = Math.min(1, maxWidth / img.width);
 
-        // Draw the image
-        ctx.drawImage(img, 0, 0);
+        // Set canvas dimensions based on the scaled image size
+        canvas.width = img.width * scale;
+        canvas.height = img.height * scale;
+
+        // Draw the scaled image
+        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
         // Prepare watermark
         const watermarkText = "{{ lead.email }} | {{ now.strftime('%Y-%m-%d %H:%M') }} UTC";
-        ctx.font = "bold 16px Arial";
-        ctx.fillStyle = "rgba(0, 0, 0, 0.25)";
+        // Scale font size based on canvas width for readability
+        const fontSize = Math.max(12, canvas.width / 50);
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.fillStyle = "rgba(0, 0, 0, 0.2)";
         ctx.textAlign = "center";
 
-        // Add multiple watermarks across the canvas
-        for (let y = 50; y < canvas.height; y += 150) {
-            for (let x = 0; x < canvas.width; x += 300) {
+        // Add multiple watermarks, adjusting spacing based on canvas size
+        const watermarkSpacingY = canvas.height / 5;
+        const watermarkSpacingX = canvas.width / 2;
+        for (let y = watermarkSpacingY / 2; y < canvas.height; y += watermarkSpacingY) {
+            for (let x = watermarkSpacingX / 2; x < canvas.width; x += watermarkSpacingX) {
                  ctx.save();
                  ctx.translate(x, y);
                  ctx.rotate(-0.25); // Rotate slightly
@@ -80,10 +90,20 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     };
 
+    img.onload = () => {
+        drawCanvas();
+    };
+
     img.onerror = () => {
-        const container = document.getElementById('plan-container');
         container.innerHTML = '<p class="text-danger font-weight-bold">Impossibile caricare l\'immagine della planimetria. Potrebbe non essere stata ancora caricata.</p>';
     };
+
+    // Redraw canvas on window resize
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(drawCanvas, 100); // Debounce resize event
+    });
 
     // Block printing
     window.onbeforeprint = () => {

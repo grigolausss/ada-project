@@ -292,13 +292,15 @@ def view_plan():
 
     prop = Property.query.filter_by(rif=user_session.rif).first_or_404()
     floor_plan = PropertyAsset.query.filter_by(property_id=prop.id, asset_type='plan').first()
+    lead = Lead.query.get(session['lead_id'])
+    now = datetime.datetime.now(datetime.timezone.utc)
 
     if not floor_plan:
         flash('Planimetria non disponibile per questo immobile.', 'warning')
-        # Decide on a redirect destination, maybe property details
         return redirect(url_for('main.property_details', rif=prop.rif))
 
-    return render_template('main/view_plan.html', floor_plan_url=url_for('main.serve_file', filename=floor_plan.file_path))
+    floor_plan_url = url_for('main.serve_file', filename=floor_plan.file_path)
+    return render_template('main/view_plan.html', floor_plan_url=floor_plan_url, lead=lead, now=now)
 
 @bp.route('/serve_file/<filename>')
 @otp_required
@@ -325,8 +327,10 @@ def serve_file(filename):
 @otp_required
 def post_view_questionnaire():
     questions = [
-        {'id': 'plan_liked', 'text': 'La planimetria che hai visto ha soddisfatto le tue aspettative?', 'type': 'radio', 'options': ['Sì, molto', 'In parte', 'No, per niente']},
-        {'id': 'next_step', 'text': 'Quale vorresti che fosse il prossimo passo?', 'type': 'radio', 'options': ['Vorrei prenotare una visita', 'Vorrei maggiori informazioni', 'Non sono interessato']}
+        {'id': 'zona_ricerca', 'text': 'In quale zona sta cercando? Scrivi di seguito', 'type': 'text'},
+        {'id': 'camere_necessarie', 'text': 'Di quante camere minimo necessiti ? (Ricorda di scrivere solo il numero che è sufficiente per le tue esigenze)', 'type': 'radio', 'options': ['1', '2', '3']},
+        {'id': 'caratteristiche_casa', 'text': 'Cosa nn può mancare nella tua nuova casa ? Scrivi', 'type': 'textarea'},
+        {'id': 'urgenza', 'text': 'Cerchiamo di dar priorità a chi ha urgenza di entrare nella nuova casa , quanta urgenza hai ?', 'type': 'radio', 'options': ['Poca', 'Media', 'Alta', 'Subito']}
     ]
 
     if request.method == 'POST':
@@ -354,4 +358,5 @@ def post_view_questionnaire():
         # For now, redirecting to a generic next step
         return redirect(url_for('main.final_choice'))
 
-    return render_template('main/post_view_questionnaire.html', questions=questions)
+    csrf_token = generate_csrf()
+    return render_template('main/post_view_questionnaire.html', questions=questions, csrf_token=csrf_token)
