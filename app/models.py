@@ -34,6 +34,7 @@ class Lead(db.Model):
     cognome = db.Column(db.String(100), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     telefono = db.Column(db.String(20))
+    privacy_consent = db.Column(db.Boolean, nullable=False, server_default='false')
     consensi_json = db.Column(db.JSON)
     stato = db.Column(db.String(50), default='nuovo')
     creato_il = db.Column(db.DateTime, default=datetime.utcnow)

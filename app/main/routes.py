@@ -130,6 +130,7 @@ def index():
         if not lead:
             lead = Lead(
                 nome=form.nome.data,
+                cognome=form.cognome.data,
                 email=form.email.data,
                 privacy_consent=form.privacy_consent.data
             )

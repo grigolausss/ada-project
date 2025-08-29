@@ -27,7 +27,7 @@ def seed_db_command():
     # Create Admin User with the user's requested email
     if not User.query.filter_by(email='grigolocri004@gmail.com').first():
         admin_user = User(email='grigolocri004@gmail.com')
-        admin_user.set_password('1234567890ok')
+        admin_user.set_password('1234ok')
         db.session.add(admin_user)
         click.echo(f"Created admin user: {admin_user.email}")
 
