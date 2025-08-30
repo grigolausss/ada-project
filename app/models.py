@@ -14,7 +14,7 @@ class Property(db.Model):
     prezzo_min = db.Column(db.Float)
     prezzo_max = db.Column(db.Float)
     stato = db.Column(db.String(50))
-    caratteristiche_json = db.Column(db.JSON)
+    caratteristiche_json = db.Column(db.JSON, nullable=False, default={})
     attivo = db.Column(db.Boolean, default=True)
     assets = db.relationship('PropertyAsset', backref='property', lazy=True)
 
@@ -54,10 +54,14 @@ class Session(db.Model):
 class OTP(db.Model):
     __tablename__ = 'otps'
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), nullable=False)
-    hash_codice = db.Column(db.String(255), nullable=False)
-    scade_il = db.Column(db.DateTime, nullable=False)
-    tentativi = db.Column(db.Integer, default=0)
+    code = db.Column(db.String(6), nullable=False)
+    expiry = db.Column(db.DateTime, nullable=False)
+    lead_id = db.Column(db.Integer, db.ForeignKey('leads.id'), nullable=False)
+    is_verified = db.Column(db.Boolean, default=False, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+
+    def is_expired(self):
+        return datetime.utcnow() > self.expiry
 
 class Answer(db.Model):
     __tablename__ = 'answers'
