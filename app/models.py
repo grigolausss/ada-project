@@ -44,6 +44,7 @@ class Session(db.Model):
     __tablename__ = 'sessions'
     id = db.Column(db.Integer, primary_key=True)
     lead_id = db.Column(db.Integer, db.ForeignKey('leads.id'), nullable=False)
+    ip_address = db.Column(db.String(45))
     rif = db.Column(db.String(50))
     iniziata_il = db.Column(db.DateTime, default=datetime.utcnow)
     completata_il = db.Column(db.DateTime)
